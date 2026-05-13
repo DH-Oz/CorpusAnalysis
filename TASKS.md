@@ -10,7 +10,7 @@ Last updated: 2026-05-13
 
 ## 1. Repo and infrastructure
 
-- [ ] **Create `DH-Oz/CorpusAnalysis` repo** on GitHub. Push initial scaffold: CLAUDE.md, TASKS.md, README.md, .gitignore, LICENSE-CONTENT (CC-BY-NC 4.0), LICENSE-CODE (MIT). Configure GitHub Pages to publish from `main` (path TBD).
+- [x] **Create `DH-Oz/CorpusAnalysis` repo** on GitHub — live at https://github.com/DH-Oz/CorpusAnalysis. Initial scaffold pushed across three commits on `main`: licences + README; CLAUDE.md + TASKS.md + pyproject placeholder; first Day 1 AM draft notebook. GitHub Pages not yet configured.
 - [x] **Create `DH-Oz/2025-corpus-analysis` repo** on GitHub for the historical R/Rmd archive — live at https://github.com/DH-Oz/2025-corpus-analysis. Initial scaffold + 2025 R/Rmd content + custom dictionaries committed across three commits on `main`. LIWC stripped from both the repo and the bundled release zip. Release `v2025` published with `corpusmasterclass2025-archive.zip` (17.6MB) as an asset.
 - [ ] **Write `.gitignore`** for `CorpusAnalysis`. Must exclude: `2025-WinterSchool/`, `Corpus Analysis Masterclass 2025.pdf`, `Corpus Analysis Masterclass 2025.pptx`, `carpentriesCollabLessonTraining.html`, `liwcdict.dic` (and `LIWC*.dic`, `liwc*.dic`), `.venv/`, `__pycache__/`, `*.ipynb_checkpoints/`, build artefacts.
 - [ ] **Write `README.md`** for the public-facing repo. Audience = students and curious browsers. Should link to the GitHub Pages site, the latest release zip, and a short "what is this course" blurb. No git instructions for students (see memory `no-git-for-students`).
@@ -24,7 +24,7 @@ Last updated: 2026-05-13
 
 Each Day-N task produces Jupyter notebooks under `2026/day-N/`, slideshow metadata on every cell, runnable in both local conda and Colab, obeying memory rules.
 
-- [ ] **Day 1 AM (Mark)** — introductions, examples of what's to come, **Python install verification** (was R install). Prompt for this task drafted in the setup chat; paste into a fresh chat.
+- [~] **Day 1 AM (Mark)** — introductions, examples of what's to come, **Python install verification** (was R install). First markdown-only draft committed at `2026/day-1/D1-AM-intro.ipynb`: title slide, McCarthy epigraphs, agenda, intros, sticky-note protocol, files-link cell. Still to do: add Slideshow cell metadata for nbconvert, replace 2025 tinyurl after v2026 release, add the "examples of what's to come" demo cells, add Python install verification beat.
 - [ ] **Day 1 PM (Brian, code-along)** — first word cloud + hierarchical clustering on Nietzsche corpus. Same prompt as D1 AM.
 - [ ] **Day 2 AM (Brian)** — demos of various corpus analyses we've done. Translation from existing material.
 - [ ] **Day 2 PM (Mark)** — (re)intro to a Python quanteda-equivalent stack; matrices and their multiplication; collocation networks. Library stack TBD; expect non-trivial design work — sklearn vectorizers + scipy.sparse + nltk collocations is a likely path.
