@@ -18,7 +18,7 @@ Last updated: 2026-05-19
 
 ## 2. Slides — split 2025 source
 
-- [ ] **Split `Corpus Analysis Masterclass 2025.pdf` (or .pptx) into 8 session sections** matching the 2025 agenda. Output a folder with one slide subset per session so each future render task has its canonical hand-off map to work against.
+- [x] **Split `Corpus Analysis Masterclass 2025.pdf` into 8 session sections** matching the 2025 agenda. Output is `2025-slides/` (committed to this repo, not gitignored) with one PDF per session plus `MANIFEST.md` mapping file → page range → 2025 divider → 2026 notebook. Boundaries: 1–45, 46–56, 57–61, 62–98, 99–145, 146–148, 149–155, 156 (= 156, no gaps). Split with `pdftk`; regen command in the manifest.
 
 ## 3. Content — per-session translation (R/Rmd → Python/Jupyter)
 

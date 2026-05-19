@@ -53,8 +53,9 @@ Local working directory currently:
 ├── day-2/                                   # (to be created)
 ├── day-3/                                   # (to be created)
 ├── day-4/                                   # (to be created)
+├── 2025-slides/                             # COMMITTED — per-session PDF splits of the 2025 deck; canonical hand-off map for translation. Not shipped in the student release zip.
 ├── 2025-WinterSchool/                       # LOCAL ONLY — gitignored; source material for translation
-├── Corpus Analysis Masterclass 2025.pdf     # LOCAL ONLY — gitignored; canonical hand-off map
+├── Corpus Analysis Masterclass 2025.pdf     # LOCAL ONLY — gitignored; whole-deck source for 2025-slides/
 ├── Corpus Analysis Masterclass 2025.pptx    # LOCAL ONLY — gitignored
 ├── carpentriesCollabLessonTraining.html     # LOCAL ONLY — pedagogy reference
 ├── CLAUDE.md                                # this file
@@ -65,6 +66,8 @@ Local working directory currently:
 ```
 
 There is intentionally **no `2026/` directory**. The repo is evergreen: `main` always carries the current edition's content, and each year is preserved as a **release tag** (`v2026.x`, `v2027.x`, …) with a release-zip asset. Future years evolve `main`; previous years live on as their release tags. The `2025-WinterSchool/` folder and the `.pdf`/`.pptx`/Carpentries HTML stay on local disk as source material. They DO NOT ship in the public `CorpusAnalysis` repo. A separate repo `DH-Oz/2025-corpus-analysis` archives the 2025 R/Rmd materials publicly (with `liwcdict.dic` stripped before push).
+
+The `2025-slides/` folder is the one exception: it carries per-session PDF subsets of the 2025 deck (split by section-divider slides), is committed to this repo as a translation hand-off map for both instructors, and has a `MANIFEST.md` mapping each PDF to its 2026 notebook target. It is **not** student-facing — exclude it from the release zip alongside the other source materials.
 
 ## Distribution model
 
@@ -90,13 +93,13 @@ jupyter nbconvert --to slides day-1/D1-PM-wordcloud-hclust.ipynb
 jupyter nbconvert --to notebook --execute day-1/D1-PM-wordcloud-hclust.ipynb --output /tmp/check.ipynb
 
 # Build a release zip (sketch — to be implemented as a CI workflow)
-# Excludes 2025-WinterSchool/, slides PDFs, carpentriesCollabLessonTraining.html, LIWC dicts
+# Excludes 2025-WinterSchool/, 2025-slides/, slides PDFs, carpentriesCollabLessonTraining.html, LIWC dicts
 ```
 
 ## Boundaries
 
 - **Safe to author/edit**: `day-N/` lesson folders, `CLAUDE.md`, `README.md`, `.gitignore`, `pyproject.toml`, `environment.yml`, `requirements.txt`, licence files, CI workflows.
-- **Read-only / source material**: `2025-WinterSchool/`, `Corpus Analysis Masterclass 2025.{pdf,pptx}`, `carpentriesCollabLessonTraining.html`. These inform the translation but do not ship.
+- **Read-only / source material**: `2025-WinterSchool/`, `Corpus Analysis Masterclass 2025.{pdf,pptx}`, `2025-slides/` (the committed split — regenerate via `MANIFEST.md`, don't hand-edit), `carpentriesCollabLessonTraining.html`. These inform the translation but do not ship.
 - **Never commit**: any LIWC dictionary, in any language.
 - **Never propose to students**: `git clone`, branches, forks, or any other git operation.
 
