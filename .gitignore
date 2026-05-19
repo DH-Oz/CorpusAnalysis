@@ -41,6 +41,9 @@ Thumbs.db
 *.swp
 *~
 
+# Claude Code local session state (per-checkout, never shared)
+.claude/
+
 # Build outputs (we want sources tracked, slide HTML built by CI)
 _site/
 _build/
