@@ -24,7 +24,7 @@ Last updated: 2026-05-19
 
 Each Day-N task produces Jupyter notebooks under `day-N/` (at repo root — no `2026/` prefix; year identity comes from the release tag), slideshow metadata on every cell, runnable in both local conda and Colab, obeying memory rules.
 
-- [~] **Day 1 AM (Mark)** — introductions, examples of what's to come, **Python install verification** (was R install). First markdown-only draft committed at `day-1/D1-AM-intro.ipynb`: title slide, McCarthy epigraphs, agenda, intros, sticky-note protocol, files-link cell. Still to do: add Slideshow cell metadata for nbconvert, replace 2025 tinyurl after v2026 release, add the "examples of what's to come" demo cells, add Python install verification beat.
+- [ ] **Day 1 AM (Mark)** — introductions, examples of what's to come, **Python install verification** (was R install). Prior quick-and-dirty markdown-only draft was removed; restart from scratch. Beats to cover: title + epigraphs, agenda, instructor intros, sticky-note protocol, files-link cell, "examples of what's to come" demo, Python install verification.
 - [ ] **Day 1 PM (Brian, code-along)** — first word cloud + hierarchical clustering on Nietzsche corpus. Same prompt as D1 AM.
 - [ ] **Day 2 AM (Brian)** — demos of various corpus analyses we've done. Translation from existing material.
 - [ ] **Day 2 PM (Mark)** — (re)intro to a Python quanteda-equivalent stack; matrices and their multiplication; collocation networks. Library stack TBD; expect non-trivial design work — sklearn vectorizers + scipy.sparse + nltk collocations is a likely path.
