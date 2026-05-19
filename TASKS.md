@@ -10,7 +10,7 @@ Last updated: 2026-05-19
 
 ## 1. Repo and infrastructure
 
-- [x] **Create `DH-Oz/CorpusAnalysis` repo** on GitHub — live at https://github.com/DH-Oz/CorpusAnalysis. Initial scaffold pushed across three commits on `main`: licences + README; CLAUDE.md + TASKS.md + pyproject placeholder; first Day 1 AM draft notebook. GitHub Pages not yet configured.
+- [x] **Create `DH-Oz/CorpusAnalysis` repo** on GitHub — live at https://github.com/DH-Oz/CorpusAnalysis. Repo scaffolded (licences, README, CLAUDE.md, TASKS.md, pyproject, .gitignore) on `main`. GitHub Pages not yet configured. No release tags yet.
 - [x] **Create `DH-Oz/2025-corpus-analysis` repo** on GitHub for the historical R/Rmd archive — live at https://github.com/DH-Oz/2025-corpus-analysis. Initial scaffold + 2025 R/Rmd content + custom dictionaries committed across three commits on `main`. LIWC stripped from both the repo and the bundled release zip. Release `v2025` published with `corpusmasterclass2025-archive.zip` (17.6MB) as an asset.
 - [x] **Write `.gitignore`** for `CorpusAnalysis` — committed and verified via `git check-ignore`. Catches `2025-WinterSchool/`, both 2025 slide files, `carpentriesCollabLessonTraining.html`, the LIWC dictionary patterns, `.venv/`, `__pycache__/`, `*.ipynb_checkpoints/`, and build outputs (`_site/`, `_build/`, `slides/*.slides.html`, `slides/reveal.js/`). Also gitignores the leftover uv-era `uv.lock` and `main.py` since the project pivoted to conda.
 - [x] **Write `README.md`** for the public-facing repo — committed at `README.md`. Covers course blurb, eight-session outline, "no prior Python" assumption, release-zip download flow (links the Pages site even though it isn't deployed yet), Miniconda local-install path, Colab backstop, licence split, both instructor contacts, and a pointer to the 2025 archive repo. References `environment.yml` / `requirements.txt` inside the release zip — those files don't exist yet (depend on the env decision below).
@@ -43,7 +43,7 @@ Each Day-N task produces Jupyter notebooks under `day-N/` (at repo root — no `
 ## 5. Deferred decisions (mirror of `CLAUDE.md` § Open / deferred decisions)
 
 - [?] **Python library stack** — locked once the Day-1 render task proposes a starting set.
-- [?] **Release versioning scheme** — `v2026.0.1` semver-ish, or `v2026-w1` date-based, or other.
+- [?] **Within-year release versioning scheme** — major version is the calendar year (`v2026.x`, `v2027.x`); minor/patch format is open (e.g. `v2026.0.1` semver-ish, or `v2026-w1` week-of-instruction).
 - [?] **Mark ↔ Brian review cadence** — does each translated session need explicit sign-off before slides deploy?
 - [?] **Live-slide future**: RISE was tried and parked; revisit if/when Brian gets it working. Architecture should not preclude switching.
 - [?] **Audience prior Python knowledge** — current assumption is "none". Revise if cohort intake changes.
@@ -52,5 +52,5 @@ Each Day-N task produces Jupyter notebooks under `day-N/` (at repo root — no `
 
 - Read `CLAUDE.md` and the project memory (`~/.claude/projects/-home-brian-people-Mark-2026-WinterSchool/memory/`) before doing any content work.
 - The 2025 slides PDF/PPTX is the canonical hand-off map between Mark's and Brian's portions of each session — consult it when translating.
-- The Day-1 render prompt is a model for subsequent days; reuse its shape (read memory → read 2025 source → halt for user approval on libraries and layout → implement → verify nbconvert → commit).
+- For each per-session translation, the working shape is: read memory → read the relevant section of the 2025 source → halt for user approval on libraries and layout → implement → verify nbconvert → commit. (The first Day-1 AM attempt was scrapped and is being restarted; treat the shape above as the workflow, not any specific prior notebook as the template.)
 - Halt on uncertainty rather than guess. Especially on LIWC handling, licence questions, anything touching the release zip.

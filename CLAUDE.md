@@ -113,4 +113,3 @@ These are not blockers but should be locked as work progresses; update this CLAU
 2. **Within-year release versioning scheme** — major version is the calendar year (`v2026.x`, `v2027.x`); minor/patch format is open (e.g. `v2026.0.1` semver-ish, or `v2026-w1` week-of-instruction).
 3. **Mark ↔ Brian review cadence** for translated notebooks before slides deploy.
 4. **CI workflow** for slide builds and release-zip generation.
-5. **Repo creation**: neither DH-Oz repo exists on GitHub yet at the time of writing.
