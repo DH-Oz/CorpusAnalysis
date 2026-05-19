@@ -1,6 +1,6 @@
 # DH-Oz Corpus Analysis Masterclass
 
-Last verified: 2026-05-13
+Last verified: 2026-05-19
 
 Local working directory for the `DH-Oz/CorpusAnalysis` evergreen repo — a living document for the Digital Humanities Winter School corpus-analysis stream. The 2026 edition is a presentation pivot of the 2025 course from R/Rmd to Python/Jupyter; content is stable, delivery is new.
 
@@ -21,7 +21,7 @@ Local working directory for the `DH-Oz/CorpusAnalysis` evergreen repo — a livi
 
 ## Tech stack
 
-- **Python**: distributed as Miniconda / Anaconda on student machines. Project itself currently declares Python 3.14 in `pyproject.toml` (placeholder from initial scaffold).
+- **Python**: 3.14, pinned in `pyproject.toml`. `pyproject.toml` is the canonical dependency list AND is taught to students as lesson content, not just project metadata. Student machines run Miniconda / Anaconda; the conda env is a thin wrapper that pip-installs from `pyproject.toml`. A pip-only `requirements.txt` ships alongside as the Colab / restricted-machine fallback.
 - **Notebooks**: Jupyter `.ipynb` files. Each cell carries Slideshow metadata (Slide / Sub-Slide / Fragment / Skip / Notes).
 - **Slides**: `jupyter nbconvert --to slides notebook.ipynb` → reveal.js HTML. RISE was attempted and parked — architecture must not preclude switching later, but ship with nbconvert for now.
 - **Site**: GitHub Pages hosts a landing page plus the rendered nbconvert slides.
@@ -49,26 +49,29 @@ Local working directory currently:
 
 ```
 /home/brian/people/Mark/2026-WinterSchool/   # local checkout of DH-Oz/CorpusAnalysis
-├── 2026/                                    # year-specific lesson content (to be created)
-│   ├── day-1/
-│   ├── day-2/
-│   ├── day-3/
-│   └── day-4/
+├── day-1/                                   # session notebooks (one folder per teaching day)
+├── day-2/                                   # (to be created)
+├── day-3/                                   # (to be created)
+├── day-4/                                   # (to be created)
 ├── 2025-WinterSchool/                       # LOCAL ONLY — gitignored; source material for translation
 ├── Corpus Analysis Masterclass 2025.pdf     # LOCAL ONLY — gitignored; canonical hand-off map
 ├── Corpus Analysis Masterclass 2025.pptx    # LOCAL ONLY — gitignored
 ├── carpentriesCollabLessonTraining.html     # LOCAL ONLY — pedagogy reference
 ├── CLAUDE.md                                # this file
-└── pyproject.toml                           # placeholder scaffold; conda env is the real story
+├── README.md                                # public-facing course intro
+├── pyproject.toml                           # canonical dep list, Python 3.14, taught to students
+├── environment.yml                          # (to be created) thin conda wrapper; pip-installs from pyproject.toml
+└── requirements.txt                         # (to be created) pip fallback for Colab / restricted machines
 ```
 
-The `2025-WinterSchool/` folder and the `.pdf`/`.pptx`/Carpentries HTML stay on local disk as source material. They DO NOT ship in the public `CorpusAnalysis` repo. A separate repo `DH-Oz/2025-corpus-analysis` will archive the 2025 R/Rmd materials publicly (with `liwcdict.dic` stripped before push).
+There is intentionally **no `2026/` directory**. The repo is evergreen: `main` always carries the current edition's content, and each year is preserved as a **release tag** (`v2026.x`, `v2027.x`, …) with a release-zip asset. Future years evolve `main`; previous years live on as their release tags. The `2025-WinterSchool/` folder and the `.pdf`/`.pptx`/Carpentries HTML stay on local disk as source material. They DO NOT ship in the public `CorpusAnalysis` repo. A separate repo `DH-Oz/2025-corpus-analysis` archives the 2025 R/Rmd materials publicly (with `liwcdict.dic` stripped before push).
 
 ## Distribution model
 
 - **Public site**: GitHub Pages at `DH-Oz.github.io/CorpusAnalysis` (or similar — confirm with the instructor when the repo is created). Hosts landing page + rendered nbconvert slides.
 - **Student download**: release zip on GitHub Releases, linked from the landing page. Self-contained: notebooks, corpus, dictionaries, and a short README.
-- **Slides build path**: `jupyter nbconvert --to slides 2026/day-N/<notebook>.ipynb`. Long-term this should be a CI workflow (GitHub Actions) that builds slides on push and deploys to Pages.
+- **Year tracking**: years are carried by **release tags** (`v2026.x`, `v2027.x`, …), not by year-prefixed directories. `main` always holds the current edition's content; previous editions live on as their release tags and zip assets. Within-year versioning scheme is still open (see Open / deferred decisions).
+- **Slides build path**: `jupyter nbconvert --to slides day-N/<notebook>.ipynb`. Long-term this should be a CI workflow (GitHub Actions) that builds slides on push and deploys to Pages.
 
 ## Licences
 
@@ -81,10 +84,10 @@ The `2025-WinterSchool/` folder and the `.pdf`/`.pptx`/Carpentries HTML stay on 
 
 ```bash
 # Render a notebook to reveal.js slides
-jupyter nbconvert --to slides 2026/day-1/D1-PM-wordcloud-hclust.ipynb
+jupyter nbconvert --to slides day-1/D1-PM-wordcloud-hclust.ipynb
 
 # Run a notebook headless to verify it executes cleanly
-jupyter nbconvert --to notebook --execute 2026/day-1/D1-PM-wordcloud-hclust.ipynb --output /tmp/check.ipynb
+jupyter nbconvert --to notebook --execute day-1/D1-PM-wordcloud-hclust.ipynb --output /tmp/check.ipynb
 
 # Build a release zip (sketch — to be implemented as a CI workflow)
 # Excludes 2025-WinterSchool/, slides PDFs, carpentriesCollabLessonTraining.html, LIWC dicts
@@ -92,7 +95,7 @@ jupyter nbconvert --to notebook --execute 2026/day-1/D1-PM-wordcloud-hclust.ipyn
 
 ## Boundaries
 
-- **Safe to author/edit**: `2026/`, `CLAUDE.md`, `README.md`, `.gitignore`, licence files, CI workflows.
+- **Safe to author/edit**: `day-N/` lesson folders, `CLAUDE.md`, `README.md`, `.gitignore`, `pyproject.toml`, `environment.yml`, `requirements.txt`, licence files, CI workflows.
 - **Read-only / source material**: `2025-WinterSchool/`, `Corpus Analysis Masterclass 2025.{pdf,pptx}`, `carpentriesCollabLessonTraining.html`. These inform the translation but do not ship.
 - **Never commit**: any LIWC dictionary, in any language.
 - **Never propose to students**: `git clone`, branches, forks, or any other git operation.
@@ -107,7 +110,7 @@ jupyter nbconvert --to notebook --execute 2026/day-1/D1-PM-wordcloud-hclust.ipyn
 These are not blockers but should be locked as work progresses; update this CLAUDE.md when each is settled.
 
 1. **Python library stack** for corpus analysis (word cloud, hierarchical clustering, DFM, collocations, dictionary lookups, German tokenization). The Day-1 rendering task will propose a starting set; lock and document here.
-2. **Release versioning scheme** (e.g. `v2026.0.1` semver-ish, or date-based `v2026-w1`).
+2. **Within-year release versioning scheme** — major version is the calendar year (`v2026.x`, `v2027.x`); minor/patch format is open (e.g. `v2026.0.1` semver-ish, or `v2026-w1` week-of-instruction).
 3. **Mark ↔ Brian review cadence** for translated notebooks before slides deploy.
 4. **CI workflow** for slide builds and release-zip generation.
 5. **Repo creation**: neither DH-Oz repo exists on GitHub yet at the time of writing.
