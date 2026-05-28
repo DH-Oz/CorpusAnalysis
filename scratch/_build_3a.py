@@ -202,13 +202,19 @@ CELLS: list = [
     ),
 
     code(
-        "# Apply to every speech and gather all inside-window tokens and all outside tokens.\n"
+        "# Apply to every speech and gather all inside-window tokens and all outside tokens. Drop\n"
+        "# the keyword itself from the inside windows: it sits in every window by definition, so\n"
+        "# leaving it in would just rank the search word at the top of its own keyness. We want\n"
+        "# the words around it.\n"
         "all_inside = []\n"
         "all_outside = []\n"
         "for tokens in speech_tokens:\n"
         "    inside, outside = split_inside_outside(tokens, nuke_patterns, window=10)\n"
         "    for window_tokens in inside:\n"
-        "        all_inside.extend(window_tokens)\n"
+        "        for token in window_tokens:\n"
+        "            if matches_pattern(token, nuke_patterns):\n"
+        "                continue\n"
+        "            all_inside.append(token)\n"
         "    all_outside.extend(outside)\n"
         "\n"
         "print(f'Inside: {len(all_inside):,} tokens. Outside: {len(all_outside):,} tokens.')"

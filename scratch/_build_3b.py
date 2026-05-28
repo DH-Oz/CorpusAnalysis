@@ -413,7 +413,9 @@ CELLS: list = [
 
     code(
         "# split_inside_outside captures the keyword windows around a set of prefixes. Reused for\n"
-        "# both kultur and tugend below.\n"
+        "# both kultur and tugend below. The keyword tokens themselves are left out of the inside\n"
+        "# list: they appear in every window by definition, so keeping them would just rank the\n"
+        "# search word at the top of its own keyness. We want the words around it.\n"
         "def split_inside_outside(tokens, prefixes, window=10):\n"
         "    near_match = [False] * len(tokens)\n"
         "    for index, token in enumerate(tokens):\n"
@@ -427,9 +429,14 @@ CELLS: list = [
         "    inside = []\n"
         "    outside = []\n"
         "    for index, token in enumerate(tokens):\n"
-        "        if near_match[index]:\n"
+        "        is_keyword = False\n"
+        "        for prefix in prefixes:\n"
+        "            if token.startswith(prefix):\n"
+        "                is_keyword = True\n"
+        "                break\n"
+        "        if near_match[index] and not is_keyword:\n"
         "            inside.append(token)\n"
-        "        else:\n"
+        "        elif not near_match[index]:\n"
         "            outside.append(token)\n"
         "    return inside, outside"
     ),
