@@ -74,6 +74,7 @@ CELLS: list = [
         "import nltk.collocations\n"
         "import scipy.stats\n"
         "import networkx\n"
+        "from corpus_tools import liwcalike\n"
         "\n"
         "print('Libraries imported.')"
     ),
@@ -321,31 +322,27 @@ CELLS: list = [
     ),
 
     code(
-        "# The liwc library reads the dictionary and matches tokens, wildcards included. The nuke\n"
-        "# dictionary has many categories (nuke, weapon, energy, suppliers, ...); the genuinely\n"
-        "# nuclear words live in the 'nuke' category. We will count that category only.\n"
-        "nuke_lookup, nuke_categories = liwc.load_token_parser('dictionaries/nuke.dic')\n"
+        "# The nuke dictionary has many categories (nuke, weapon, energy, suppliers, ...); the\n"
+        "# genuinely nuclear words live in the 'nuke' category. liwcalike reports every category as\n"
+        "# a percentage, and we plot the 'nuke' one.\n"
+        "_, nuke_categories = liwc.load_token_parser('dictionaries/nuke.dic')\n"
         "print(f'{len(nuke_categories)} categories. nuke in them: {\"nuke\" in nuke_categories}')"
     ),
 
     code(
-        "# Count only the 'nuke' category per speech and plot the rate per 1000 tokens over time.\n"
-        "nuke_rows = []\n"
-        "for original_index, tokens in enumerate(speech_tokens):\n"
-        "    hits = 0\n"
-        "    for token in tokens:\n"
-        "        if 'nuke' in nuke_lookup(token):\n"
-        "            hits = hits + 1\n"
-        "    nuke_rows.append({\n"
-        "        'year': df.iloc[original_index]['year'],\n"
-        "        'rate': hits / len(tokens) * 1000 if tokens else 0,\n"
-        "    })\n"
+        "# liwcalike with the nuke dictionary gives the 'nuke' category as a percentage of each\n"
+        "# speech's words. Plot that percentage over time.\n"
+        "nuke_docnames = []\n"
+        "for _, speech in df.iterrows():\n"
+        "    nuke_docnames.append(f\"{speech['president']}_{speech['year']}\")\n"
         "\n"
-        "nuke_df = pandas.DataFrame(nuke_rows).sort_values('year')\n"
+        "nuke_df = liwcalike(list(df['text']), nuke_docnames, 'dictionaries/nuke.dic')\n"
+        "nuke_df['year'] = list(df['year'])\n"
+        "nuke_df = nuke_df.sort_values('year')\n"
         "plt.figure(figsize=(13, 4))\n"
-        "plt.plot(nuke_df['year'], nuke_df['rate'], marker='o', markersize=3, linewidth=0.6)\n"
+        "plt.plot(nuke_df['year'], nuke_df['nuke'], marker='o', markersize=3, linewidth=0.6)\n"
         "plt.xlabel('Year')\n"
-        "plt.ylabel('Nuclear vocabulary per 1000 tokens')\n"
+        "plt.ylabel('Nuclear vocabulary (% of words)')\n"
         "plt.title('Nuclear vocabulary in State of the Union addresses')\n"
         "plt.show()"
     ),
