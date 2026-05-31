@@ -180,10 +180,31 @@ CELLS: list = [
     ),
 
     code(
-        "# R stemmed words and dropped the rare ones before finding topics and clustering.\n"
-        "# Stemming merges 'nation', 'national', and 'nations' to one root. Trimming drops words\n"
-        "# too rare to carry clustering signal. Build a separate stemmed, trimmed matrix for those\n"
-        "# two steps; the word cloud and top-feature lists above keep the full, unstemmed words.\n"
+        "# Why stem at all? In the unstemmed matrix every word form is its own feature, so a\n"
+        "# single idea is split across many columns. The variants of 'nation' below each carry a\n"
+        "# separate count, and stemming rewrites them to a shared root.\n"
+        "# NLTK stemmers: https://www.nltk.org/howto/stem.html\n"
+        "demo_stemmer = nltk.stem.SnowballStemmer('english')\n"
+        "nation_like = []\n"
+        "for word in features:\n"
+        "    if word.startswith('nation'):\n"
+        "        nation_like.append(word)\n"
+        "\n"
+        "distinct_roots = []\n"
+        "for word in nation_like:\n"
+        "    root = demo_stemmer.stem(word)\n"
+        "    if root not in distinct_roots:\n"
+        "        distinct_roots.append(root)\n"
+        "    print(f'{word:16s} count {int(corpus_totals[word]):5d}   ->  {root}')\n"
+        "\n"
+        "print(f'{len(nation_like)} separate features reduce to {len(distinct_roots)} root(s) after stemming.')"
+    ),
+
+    code(
+        "# Build the stemmed, trimmed matrix that the topic model and the dendrograms will use.\n"
+        "# Stemming merges the variants we just saw into one root. Trimming drops words too rare\n"
+        "# to carry clustering signal. The word cloud and top-feature lists above keep the full,\n"
+        "# unstemmed words.\n"
         "stemmer = nltk.stem.SnowballStemmer('english')\n"
         "\n"
         "def stem_text(text):\n"
@@ -213,23 +234,57 @@ CELLS: list = [
 
     code(
         "# Latent Dirichlet Allocation finds clusters of words that tend to co-occur across\n"
-        "# documents. Each cluster is a topic; each speech is a mixture of topics. Run it on the\n"
-        "# stemmed, trimmed matrix, so the topic words come out as roots.\n"
-        "lda = sklearn.decomposition.LatentDirichletAllocation(\n"
+        "# documents. Each cluster is a topic; each speech is a mixture of topics.\n"
+        "# top_topics runs one model and lists each topic's leading words, tagged with the topic's\n"
+        "# document mass: how many speeches' worth of weight it carries. Written once and reused\n"
+        "# for both runs below.\n"
+        "def top_topics(model):\n"
+        "    document_mass = model.transform(stem_counts).sum(axis=0)\n"
+        "    topics = {}\n"
+        "    for topic_index, weights in enumerate(model.components_):\n"
+        "        top_indices = weights.argsort()[-10:][::-1]\n"
+        "        top_words = []\n"
+        "        for word_index in top_indices:\n"
+        "            top_words.append(stem_features[word_index])\n"
+        "        label = f'Topic {topic_index + 1} (mass {document_mass[topic_index]:.1f})'\n"
+        "        topics[label] = top_words\n"
+        "    return pandas.DataFrame(topics)"
+    ),
+
+    code(
+        "# Run it on the stemmed, trimmed matrix, so the topic words come out as roots. The number\n"
+        "# of topics is a choice. Start with eight, and read the mass tagged on each column.\n"
+        "# scikit-learn LDA: https://scikit-learn.org/stable/modules/decomposition.html#latent-dirichlet-allocation-lda\n"
+        "lda8 = sklearn.decomposition.LatentDirichletAllocation(\n"
         "    n_components=8,\n"
         "    random_state=42,\n"
         "    max_iter=20,\n"
         ").fit(stem_counts)\n"
+        "top_topics(lda8)"
+    ),
+
+    md(
+        "## Eight topics is too many\n"
         "\n"
-        "topics = {}\n"
-        "for topic_index, weights in enumerate(lda.components_):\n"
-        "    top_indices = weights.argsort()[-10:][::-1]\n"
-        "    top_words = []\n"
-        "    for word_index in top_indices:\n"
-        "        top_words.append(stem_features[word_index])\n"
-        "    topics[f'Topic {topic_index + 1}'] = top_words\n"
+        "Two of these topics are identical and own almost no speeches. Eight topics is more than "
+        "this corpus supports. The surplus topics find no documents, so they collapse onto the "
+        "same handful of rare words. Choosing the number of topics is a real modelling decision.\n"
         "\n"
-        "pandas.DataFrame(topics)"
+        "Further reading: [scikit-learn's LDA guide](https://scikit-learn.org/stable/modules/"
+        "decomposition.html#latent-dirichlet-allocation-lda) and [Wallach, Mimno & McCallum "
+        "(2009), *Rethinking LDA: Why Priors Matter*](https://papers.nips.cc/paper/3854-"
+        "rethinking-lda-why-priors-matter), which shows how better priors make topic models "
+        "robust to this choice."
+    ),
+
+    code(
+        "# Five topics. Every topic now owns real document weight and the duplicates are gone.\n"
+        "lda5 = sklearn.decomposition.LatentDirichletAllocation(\n"
+        "    n_components=5,\n"
+        "    random_state=42,\n"
+        "    max_iter=20,\n"
+        ").fit(stem_counts)\n"
+        "top_topics(lda5)"
     ),
 
     code(
@@ -399,8 +454,9 @@ CELLS: list = [
         "matplotlib subplots.\n"
         "\n"
         "**Corpus linguistics:** loading a built-in corpus; document-feature matrix; English "
-        "stop-word filtering; corpus-wide vs per-document top features; word clouds; Latent "
-        "Dirichlet Allocation for topic discovery; hierarchical clustering with Euclidean and "
+        "stop-word filtering; corpus-wide vs per-document top features; word clouds; stemming "
+        "to merge word variants; Latent Dirichlet Allocation for topic discovery and the effect "
+        "of choosing the number of topics; hierarchical clustering with Euclidean and "
         "cosine distance; dendrograms; comparison word clouds across presidential eras."
     ),
 
