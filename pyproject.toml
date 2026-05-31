@@ -1,10 +1,36 @@
 [project]
-name = "2026-winterschool"
+name = "corpusanalysis"
 version = "0.1.0"
-description = "Add your description here"
+description = "DH-Oz Corpus Analysis Masterclass — Python/Jupyter lessons (2026 edition)."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "de-core-news-sm",
+    "en-core-web-sm",
     "jupyter>=1.1.1",
     "jupyterlab-rise>=0.43.1",
+    "liwc>=0.5.0",
+    "matplotlib>=3.10.9",
+    "networkx>=3.6.1",
+    "nltk>=3.9.4",
+    "numpy>=2.4.4",
+    "pandas<3",
+    "scikit-learn>=1.8.0",
+    "scipy>=1.17.1",
+    "sotu>=0.1.0",
+    "spacy>=3.8.13",
+    "wordcloud>=1.9.6",
 ]
+
+# Instructor / build tooling — not shipped to students, not required to run the lessons.
+# Install with: `uv sync` (default) or `uv sync --group dev` if explicit.
+[dependency-groups]
+dev = [
+    "python-pptx>=1.0",
+    "pre-commit>=4.0",
+    "pytest>=8.0",
+]
+
+[tool.uv.sources]
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }
+de-core-news-sm = { url = "https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl" }
