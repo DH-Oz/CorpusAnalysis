@@ -82,6 +82,7 @@ CELLS: list = [
         "import scipy.cluster.hierarchy\n"
         "import wordcloud\n"
         "import networkx\n"
+        "from corpus_tools import liwcalike\n"
         "\n"
         "print('Libraries imported.')"
     ),
@@ -266,50 +267,48 @@ CELLS: list = [
     ),
 
     code(
-        "# Load the Nietzsche moral-psychology dictionary with the liwc library. It has 54\n"
-        "# categories (virtue, shame, culture, solitude, ...). The library handles the wildcard\n"
-        "# matching, including the historic-spelling stems.\n"
-        "n_lookup, n_names = liwc.load_token_parser('dictionaries/nietzsche.dic')\n"
+        "# Load the Nietzsche moral-psychology dictionary. liwcalike does the matching, including\n"
+        "# the trailing-* wildcard that catches historic spellings. Here we just read off its names.\n"
+        "_, n_names = liwc.load_token_parser('dictionaries/nietzsche.dic')\n"
         "print(f'{len(n_names)} categories: {n_names[:8]} ...')"
     ),
 
     code(
-        "# count_categories tallies dictionary hits per category for one token list. Reused for\n"
-        "# books here and paragraphs later.\n"
-        "def count_categories(tokens):\n"
-        "    counts = {}\n"
-        "    for name in n_names:\n"
-        "        counts[name] = 0\n"
-        "    for token in tokens:\n"
-        "        for name in n_lookup(token):\n"
-        "            counts[name] = counts[name] + 1\n"
-        "    return counts\n"
-        "\n"
-        "book_rows = []\n"
-        "for original_index, tokens in enumerate(nietzsche_tokens):\n"
-        "    counts = count_categories(tokens)\n"
-        "    counts['book_code'] = nietzsche_df.iloc[original_index]['book_code']\n"
-        "    counts['year'] = nietzsche_df.iloc[original_index]['year']\n"
-        "    book_rows.append(counts)\n"
-        "\n"
-        "book_feature_df = pandas.DataFrame(book_rows)\n"
+        "# liwcalike applies the dictionary to every book at once. Each category becomes a\n"
+        "# percentage of the book's word count, reported next to WC, words per sentence (WPS),\n"
+        "# and the share of long words (Sixltr).\n"
+        "book_feature_df = liwcalike(list(nietzsche_df['text']), book_labels, 'dictionaries/nietzsche.dic')\n"
+        "book_feature_df['book_code'] = list(nietzsche_df['book_code'])\n"
+        "book_feature_df['year'] = list(nietzsche_df['year'])\n"
         "book_feature_df.head(3)"
     ),
 
     code(
-        "# Plot a few moral terms across the books, labelled by book code.\n"
+        "# Helper. Plot one liwcalike column across the books, labelled by book code.\n"
+        "def plot_book_metric(column, ylabel, title):\n"
+        "    ordered = book_feature_df.sort_values('year')\n"
+        "    plt.figure(figsize=(11, 3.5))\n"
+        "    plt.scatter(ordered['year'], ordered[column])\n"
+        "    for _, row in ordered.iterrows():\n"
+        "        plt.annotate(row['book_code'], (row['year'], row[column]), fontsize=8)\n"
+        "    plt.xlabel('Year')\n"
+        "    plt.ylabel(ylabel)\n"
+        "    plt.title(title)\n"
+        "    plt.show()"
+    ),
+
+    code(
+        "# Average sentence length and the share of long words come straight from liwcalike.\n"
+        "plot_book_metric('WPS', 'Words per sentence', 'Nietzsche: average sentence length')\n"
+        "plot_book_metric('Sixltr', '% words longer than six letters', 'Nietzsche: long words')"
+    ),
+
+    code(
+        "# A few moral categories across the books, each as a percentage of the book's words.\n"
         "for name in ['virtue', 'shame', 'culture']:\n"
         "    if name not in book_feature_df.columns:\n"
         "        continue\n"
-        "    ordered = book_feature_df.sort_values('year')\n"
-        "    plt.figure(figsize=(11, 3.5))\n"
-        "    plt.scatter(ordered['year'], ordered[name])\n"
-        "    for _, row in ordered.iterrows():\n"
-        "        plt.annotate(row['book_code'], (row['year'], row[name]), fontsize=8)\n"
-        "    plt.xlabel('Year')\n"
-        "    plt.ylabel(f'{name} count')\n"
-        "    plt.title(f'Nietzsche on \"{name}\" across books')\n"
-        "    plt.show()"
+        "    plot_book_metric(name, f'{name} (% of words)', f'Nietzsche on \"{name}\" across books')"
     ),
 
     code(
@@ -329,13 +328,13 @@ CELLS: list = [
     ),
 
     code(
-        "# Category counts per paragraph, reusing count_categories.\n"
-        "paragraph_feature_rows = []\n"
-        "for text in paragraph_df['text']:\n"
-        "    tokens = re.findall(r'\\w+', text.lower())\n"
-        "    paragraph_feature_rows.append(count_categories(tokens))\n"
+        "# liwcalike again, now one row per paragraph. Each category is a percentage of the\n"
+        "# paragraph's word count, so a short paragraph and a long one sit on the same scale.\n"
+        "paragraph_names = []\n"
+        "for paragraph_index in range(len(paragraph_df)):\n"
+        "    paragraph_names.append(f'para_{paragraph_index}')\n"
         "\n"
-        "paragraph_feature_df = pandas.DataFrame(paragraph_feature_rows)\n"
+        "paragraph_feature_df = liwcalike(list(paragraph_df['text']), paragraph_names, 'dictionaries/nietzsche.dic')\n"
         "paragraph_feature_df.head(3)"
     ),
 
