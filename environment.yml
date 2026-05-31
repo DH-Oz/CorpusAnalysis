@@ -1,0 +1,21 @@
+# Corpus Analysis Masterclass — conda environment
+#
+# Creates a Python 3.14 env inside vanilla Miniconda and pip-installs the
+# project from pyproject.toml (single source of truth).
+#
+# Usage (after installing Miniconda + downloading the release zip):
+#   cd <unpacked-folder>
+#   conda env create -f environment.yml
+#   conda activate corpusanalysis
+#   jupyter lab
+#
+# The `pip: [-e .]` line pulls every real dependency from pyproject.toml —
+# do not list libraries here, list them in pyproject.toml.
+name: corpusanalysis
+channels:
+  - conda-forge
+dependencies:
+  - python=3.14
+  - pip
+  - pip:
+      - -e .
