@@ -75,6 +75,7 @@ CELLS: list = [
         "import scipy.cluster.hierarchy\n"
         "import wordcloud\n"
         "import nltk.stem\n"
+        "from corpus_tools import comparison_cloud\n"
         "\n"
         "print('Libraries imported.')"
     ),
@@ -397,53 +398,39 @@ CELLS: list = [
     ),
 
     code(
-        "# Helper for the comparison-wordcloud beats. Takes one or more speaker names and lays\n"
-        "# their first few addresses out as a grid of clouds.\n"
-        "def comparison_clouds(speakers, take=4):\n"
-        "    if isinstance(speakers, str):\n"
-        "        speakers = [speakers]\n"
-        "    rows = []\n"
+        "# Helper for the comparison-wordcloud beats. comparison_cloud, imported from corpus_tools,\n"
+        "# draws the R-style wedge cloud. comparison_for picks each speaker's first few speeches and\n"
+        "# hands their document-feature rows to it. We select by name, not row number, so this keeps\n"
+        "# working as the corpus grows each year.\n"
+        "def comparison_for(speakers, per_speaker):\n"
+        "    chosen = []\n"
         "    for name in speakers:\n"
-        "        for _, row in df[df['president'] == name].head(take).iterrows():\n"
-        "            rows.append(row)\n"
-        "    if not rows:\n"
-        "        print(f'No matches for {speakers!r}')\n"
-        "        return\n"
-        "    cols = 2 if len(speakers) == 1 else 4\n"
-        "    nrows = int(numpy.ceil(len(rows) / cols))\n"
-        "    fig, axes = plt.subplots(nrows, cols, figsize=(11, 3.2 * nrows))\n"
-        "    flat = axes.flatten() if hasattr(axes, 'flatten') else [axes]\n"
-        "    for ax, row in zip(flat, rows):\n"
-        "        wc_local = wordcloud.WordCloud(\n"
-        "            width=500,\n"
-        "            height=350,\n"
-        "            background_color='white',\n"
-        "            colormap='tab10',\n"
-        "            random_state=42,\n"
-        "            stopwords=wordcloud.STOPWORDS,\n"
-        "        ).generate(row['text'])\n"
-        "        ax.imshow(wc_local, interpolation='bilinear')\n"
-        "        ax.set_title(f'{row[\"year\"]} {row[\"president\"]}', fontsize=10)\n"
-        "        ax.axis('off')\n"
-        "    for ax in flat[len(rows):]:\n"
-        "        ax.axis('off')\n"
-        "    plt.tight_layout()\n"
-        "    plt.show()"
+        "        taken = 0\n"
+        "        for position in range(len(df)):\n"
+        "            if df.iloc[position]['president'] == name:\n"
+        "                chosen.append(position)\n"
+        "                taken = taken + 1\n"
+        "                if taken >= per_speaker:\n"
+        "                    break\n"
+        "    labels = []\n"
+        "    for position in chosen:\n"
+        "        labels.append(f\"{df.iloc[position]['president']}-{df.iloc[position]['year']}\")\n"
+        "    comparison_cloud(dfm[chosen].toarray(), features, labels)"
     ),
 
     code(
-        "# Washington's first four addresses.\n"
-        "comparison_clouds('Washington')"
+        "# Washington's eight messages: which words distinguish each from the others.\n"
+        "comparison_for(['Washington'], 8)"
     ),
 
     code(
-        "# Adams and Jefferson side by side.\n"
-        "comparison_clouds(['Adams', 'Jefferson'])"
+        "# Adams and Jefferson, four speeches each.\n"
+        "comparison_for(['Adams', 'Jefferson'], 4)"
     ),
 
     code(
-        "# Obama and Trump side by side.\n"
-        "comparison_clouds(['Obama', 'Trump'])"
+        "# Obama and Trump, four speeches each.\n"
+        "comparison_for(['Obama', 'Trump'], 4)"
     ),
 
     md(
@@ -451,7 +438,7 @@ CELLS: list = [
         "\n"
         "**Python:** library imports, pandas DataFrame inspection and column assignment, "
         "boolean masking, `for` loops, defining functions with default arguments, f-strings, "
-        "matplotlib subplots.\n"
+        "importing a helper from a local module.\n"
         "\n"
         "**Corpus linguistics:** loading a built-in corpus; document-feature matrix; English "
         "stop-word filtering; corpus-wide vs per-document top features; word clouds; stemming "

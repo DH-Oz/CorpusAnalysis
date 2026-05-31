@@ -12,9 +12,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import matplotlib
+
+matplotlib.use("Agg")
+import numpy
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from corpus_tools import liwcalike
+from corpus_tools import comparison_cloud, distinctive_terms, liwcalike
 
 
 def write_dic(tmp_path: Path, body: str) -> str:
@@ -141,3 +146,29 @@ def test_digits_argument_controls_rounding(tmp_path):
     dic = write_dic(tmp_path, TWO_CATEGORY_DIC)
     result = liwcalike(["brave the day"], ["docE"], dic, digits=1)
     assert result.loc[0, "virtue"] == 33.3
+
+
+def test_distinctive_terms_assigns_each_term_to_its_peak_document():
+    # doc0 favours 'a' (rate 0.75 vs mean 0.5), doc1 favours 'b'; each peak is 0.25.
+    freqs = distinctive_terms(numpy.array([[3, 1], [1, 3]]), ["a", "b"])
+    assert freqs == [{"a": 0.25}, {"b": 0.25}]
+
+
+def test_distinctive_terms_drops_terms_with_no_positive_difference():
+    # Both terms occur equally in both documents, so neither is distinctive.
+    freqs = distinctive_terms(numpy.array([[2, 2], [2, 2]]), ["a", "b"])
+    assert freqs == [{}, {}]
+
+
+def test_distinctive_terms_handles_a_document_only_term():
+    freqs = distinctive_terms(numpy.array([[4, 0], [0, 4]]), ["a", "b"])
+    assert freqs == [{"a": 0.5}, {"b": 0.5}]
+
+
+def test_comparison_cloud_runs_without_error():
+    matrix = numpy.array([[5, 1, 0, 2], [0, 1, 5, 2]])
+    features = ["alpha", "beta", "gamma", "delta"]
+    comparison_cloud(matrix, features, ["doc one", "doc two"], size=200, max_words=8)
+    import matplotlib.pyplot as plt
+
+    plt.close("all")
