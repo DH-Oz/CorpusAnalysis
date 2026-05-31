@@ -113,15 +113,15 @@ CELLS: list = [
     ),
 
     code(
-        "# Book length in characters, labelled by book code.\n"
-        "nietzsche_df['characters'] = nietzsche_df['text'].str.len()\n"
+        "# Book length in tokens (whitespace-separated words), labelled by book code.\n"
+        "nietzsche_df['tokens'] = nietzsche_df['text'].str.split().str.len()\n"
         "\n"
         "plt.figure(figsize=(11, 5))\n"
-        "plt.scatter(nietzsche_df['year'], nietzsche_df['characters'])\n"
+        "plt.scatter(nietzsche_df['year'], nietzsche_df['tokens'])\n"
         "for _, row in nietzsche_df.iterrows():\n"
-        "    plt.annotate(row['book_code'], (row['year'], row['characters']), fontsize=9)\n"
+        "    plt.annotate(row['book_code'], (row['year'], row['tokens']), fontsize=9)\n"
         "plt.xlabel('Year')\n"
-        "plt.ylabel('Characters')\n"
+        "plt.ylabel('Tokens')\n"
         "plt.title('Nietzsche book length over time')\n"
         "plt.show()"
     ),
@@ -305,7 +305,7 @@ CELLS: list = [
 
     code(
         "# A few moral categories across the books, each as a percentage of the book's words.\n"
-        "for name in ['virtue', 'shame', 'culture']:\n"
+        "for name in ['instinct', 'shame', 'style', 'virtue', 'culture']:\n"
         "    if name not in book_feature_df.columns:\n"
         "        continue\n"
         "    plot_book_metric(name, f'{name} (% of words)', f'Nietzsche on \"{name}\" across books')"

@@ -356,7 +356,8 @@ CELLS: list = [
 
     code(
         "# Same modern subset, cosine distance. Cosine measures the angle between two count\n"
-        "# vectors and ignores their magnitude.\n"
+        "# vectors and ignores their magnitude. scipy's 'cosine' metric is a true distance, one\n"
+        "# minus the cosine similarity, so the most similar speeches sit closest together.\n"
         "render_dendrogram(\n"
         "    modern_matrix,\n"
         "    modern_labels,\n"
