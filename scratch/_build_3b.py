@@ -518,7 +518,9 @@ CELLS: list = [
         "https://networkx.org/documentation/stable/reference/drawing.html#module-networkx.drawing.layout).\n"
         "- **scipy.stats.chi2_contingency**: [https://docs.scipy.org/doc/scipy/reference/"
         "generated/scipy.stats.chi2_contingency.html]("
-        "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2_contingency.html)."
+        "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2_contingency.html).\n"
+        "- **Keyness and positive vs negative keywords**: [https://browndw.github.io/"
+        "textstat_docs/labs/keyness.html](https://browndw.github.io/textstat_docs/labs/keyness.html)."
     ),
 ]
 
