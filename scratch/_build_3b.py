@@ -216,7 +216,7 @@ CELLS: list = [
         "    book_labels.append(f'{row[\"year\"]} {row[\"book_code\"]}')\n"
         "\n"
         "distances = scipy.spatial.distance.pdist(normalised, metric='euclidean')\n"
-        "linkage = scipy.cluster.hierarchy.linkage(distances, method='average')\n"
+        "linkage = scipy.cluster.hierarchy.linkage(distances, method='complete')\n"
         "plt.figure(figsize=(13, 5))\n"
         "scipy.cluster.hierarchy.dendrogram(linkage, labels=book_labels, leaf_rotation=45, leaf_font_size=10)\n"
         "plt.title('Nietzsche books: Euclidean distance on normalised token frequency')\n"

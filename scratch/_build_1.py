@@ -311,7 +311,7 @@ CELLS: list = [
         "# dendrogram. The metric and title vary; everything else is the same.\n"
         "def render_dendrogram(matrix, leaf_labels, metric, title, figsize=(14, 6), leaf_font_size=7):\n"
         "    distances = scipy.spatial.distance.pdist(matrix, metric=metric)\n"
-        "    linkage = scipy.cluster.hierarchy.linkage(distances, method='average')\n"
+        "    linkage = scipy.cluster.hierarchy.linkage(distances, method='complete')\n"
         "    plt.figure(figsize=figsize)\n"
         "    scipy.cluster.hierarchy.dendrogram(\n"
         "        linkage,\n"
