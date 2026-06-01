@@ -58,7 +58,7 @@ LIWC dictionaries are commercial and are **not** distributed in this repository.
 
 ## Contact
 
-Mark Alfano — [contact TBD]
+Mark Alfano — mark.alfano@gmail.com
 Brian Ballsun-Stanton — brian.ballsun-stanton@mq.edu.au
 
 ## Historical archive
