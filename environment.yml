@@ -1,0 +1,18 @@
+# Corpus Analysis Masterclass — conda environment.
+#
+# Miniconda supplies only Python; every library comes from requirements.txt,
+# the single dependency list, so there is nothing to keep in sync.
+#
+# Usage (after installing Miniconda + downloading the release zip):
+#   cd <unpacked-folder>
+#   conda env create -f environment.yml
+#   conda activate corpusanalysis
+#   jupyter lab
+name: corpusanalysis
+channels:
+  - conda-forge
+dependencies:
+  - python=3.14
+  - pip
+  - pip:
+      - -r requirements.txt

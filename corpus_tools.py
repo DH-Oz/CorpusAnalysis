@@ -32,11 +32,16 @@ This module also provides comparison_cloud, an R-style comparison word cloud
 (R's textplot_wordcloud(comparison = TRUE)), built on the same wordcloud library.
 """
 
+# This repo-root file is the single source. Copies sit beside each notebook in
+# day-N/ and are generated from this one by tools/sync_corpus_tools.py. Edit only
+# this file; never edit a day-N copy.
+
 import re
 
 import liwc
 import matplotlib
 import matplotlib.pyplot as plt
+import networkx
 import numpy
 import pandas
 import wordcloud
@@ -204,5 +209,117 @@ def comparison_cloud(matrix, features, labels, size=900, max_words=60):
     axes.set_xlim(0, size)
     axes.set_ylim(size, 0)
     axes.axis("off")
+    plt.tight_layout()
+    plt.show()
+
+
+def cooccurrence_graph(counts, labels, top_edges=40):
+    """Build a category co-occurrence graph and keep its strongest links.
+
+    counts is an (n_documents x n_categories) array of non-negative values;
+    labels names the categories. The co-occurrence weight between two categories
+    is the matrix product counts.T @ counts: it grows with how often, and how
+    strongly, the pair turns up in the same documents. This is the same feature
+    co-occurrence matrix R's quanteda builds with fcm().
+
+    Self-loops are dropped, only the `top_edges` heaviest links are kept, and any
+    category left with no links is removed. Returns a networkx.Graph whose nodes
+    are label strings and whose edges carry a 'weight'.
+    """
+    matrix = numpy.asarray(counts, dtype=float)
+    adjacency = matrix.T @ matrix
+    graph = networkx.from_numpy_array(adjacency)
+
+    relabelling = {}
+    for node_index in range(len(labels)):
+        relabelling[node_index] = labels[node_index]
+    graph = networkx.relabel_nodes(graph, relabelling)
+
+    graph.remove_edges_from(list(networkx.selfloop_edges(graph)))
+
+    # Rank the edges by weight, keep the strongest, and drop the rest.
+    ranked_edges = []
+    for u, v in graph.edges():
+        ranked_edges.append((graph[u][v]["weight"], u, v))
+
+    def by_weight(item):
+        return item[0]
+
+    ranked_edges = sorted(ranked_edges, key=by_weight, reverse=True)
+    for weight, u, v in ranked_edges[top_edges:]:
+        graph.remove_edge(u, v)
+
+    graph.remove_nodes_from(list(networkx.isolates(graph)))
+    return graph
+
+
+def draw_cooccurrence_network(counts, labels, top_edges=40, node_color="lightyellow", title=""):
+    """Draw the category co-occurrence network for a set of documents.
+
+    counts is an (n_documents x n_categories) array; labels names the categories.
+    The graph comes from cooccurrence_graph. Each node is sized by how often its
+    category appears across the documents; each edge is widened and darkened by
+    its co-occurrence weight. A fresh force-directed layout is computed every
+    call. Nothing is drawn when no co-occurrences survive the pruning.
+    """
+    graph = cooccurrence_graph(counts, labels, top_edges)
+    if graph.number_of_nodes() == 0:
+        print("No co-occurrences to display.")
+        return
+
+    matrix = numpy.asarray(counts, dtype=float)
+    category_totals = {}
+    for column_index in range(len(labels)):
+        category_totals[labels[column_index]] = matrix[:, column_index].sum()
+    biggest = max(category_totals.values())
+    if biggest <= 0:
+        biggest = 1.0
+    node_sizes = []
+    for node in graph.nodes():
+        node_sizes.append(300 + category_totals[node] / biggest * 1900)
+
+    weights = []
+    for u, v in graph.edges():
+        weights.append(graph[u][v]["weight"])
+    largest = max(weights) if weights else 1
+    widths = []
+    edge_colors = []
+    for weight in weights:
+        widths.append(weight / largest * 5)
+        shade = 0.85 - 0.7 * (weight / largest)
+        edge_colors.append((shade, shade, shade))
+
+    plt.figure(figsize=(9, 8))
+    networkx.draw(
+        graph,
+        pos=networkx.spring_layout(graph, seed=42, weight="weight"),
+        with_labels=True,
+        node_color=node_color,
+        node_size=node_sizes,
+        edge_color=edge_colors,
+        width=widths,
+        font_size=8,
+    )
+    plt.title(title)
+    plt.show()
+
+
+def dispersion_plot(labels, lengths, positions, title, mark_size=100):
+    """Draw a lexical-dispersion plot, one row per document.
+
+    labels, lengths, and positions are equal-length lists. For row i a grey bar
+    runs from 0 to lengths[i] (the document's token count) and a black tick is
+    drawn at each token index in positions[i] (every occurrence being traced).
+    Rows read top to bottom in the order given.
+    """
+    plt.figure(figsize=(11, max(2.5, 0.30 * len(labels))))
+    for plot_row in range(len(labels)):
+        plt.hlines(plot_row, 0, lengths[plot_row], color="lightgray", linewidth=6, zorder=1)
+        marks = positions[plot_row]
+        plt.scatter(marks, [plot_row] * len(marks), marker="|", s=mark_size, color="black", zorder=2)
+    plt.yticks(range(len(labels)), labels, fontsize=7)
+    plt.xlabel("Token index")
+    plt.title(title)
+    plt.gca().invert_yaxis()
     plt.tight_layout()
     plt.show()

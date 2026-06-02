@@ -1,0 +1,92 @@
+/* Project-wide slide styling for the Corpus Analysis Masterclass.
+ * Injected into the nbconvert reveal.js HTML by tools/render_slides.py.
+ * Goal: keep images + framing prose on one slide, and bullet-heavy builds
+ * inside the slide without inline styles in lesson markdown.
+ *
+ * Be conservative — reveal.js's print-pdf mode is fragile under broad selectors
+ * (.reveal section ...), display:block, display:grid, object-fit, vh units, or
+ * percentage max-height on grid children. Stick to simple percentage caps +
+ * font-size tweaks + flex layouts until each rule is verified in the PDF QA.
+ */
+
+/* Cap image size so framing prose stays on the same slide. */
+.reveal img {
+    max-width: 65%;
+    max-height: 60%;
+}
+
+/* Bullet-heavy slides: a small font-size + line-height nudge so the
+ * fully-built beginner-notes state fits on one printed page. */
+.reveal ul li {
+    font-size: 0.85em;
+    line-height: 1.3;
+}
+
+/* Side-by-side image pair on one slide.
+ * Use as: <div class="side-by-side"><img src="..."><img src="..."></div>
+ */
+.reveal .side-by-side {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    align-items: center;
+    justify-content: center;
+}
+.reveal .side-by-side img {
+    max-width: 45%;
+    max-height: 70%;
+}
+
+/* 2x2 image grid for slides with four images (e.g. SoU intro).
+ * Use as: <div class="image-grid"><img …><img …><img …><img …></div>
+ * Implemented as flex+wrap rather than display:grid — display:grid breaks
+ * reveal.js's print-pdf layout entirely (renders a blank PDF). Absolute
+ * px max-height for the same reason.
+ */
+.reveal .image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6em;
+    justify-content: center;
+    align-items: center;
+}
+.reveal .image-grid img {
+    max-width: 32%;
+    max-height: 110px;
+}
+
+/* Code cells: shrink monospace font so longer lines fit inside the slide
+ * width without bleeding off the right edge in print-pdf mode. Targets the
+ * specific selectors nbconvert reveal uses so we win the specificity battle
+ * against the default jp-code-font-size var. */
+.reveal div.highlight > pre,
+.reveal div.jp-OutputArea-output > pre {
+    font-size: 0.45em;
+    line-height: 1.25;
+}
+
+/* Click-to-reveal pattern for §4 image-then-code beats.
+ *
+ * In live reveal.js (screen mode) code cells that are direct children of a
+ * slide are hidden until the instructor clicks the image. The click handler
+ * in render_slides.py toggles `.show-code` on the parent <section>.
+ * Cells wrapped in `<div class="fragment">` (slide_type=fragment) are NOT
+ * touched here — reveal.js handles their visibility.
+ *
+ * The `html:not(.print-pdf)` guard restricts these rules to screen mode;
+ * reveal.js sets `class="print-pdf"` on <html> for the QA render, so the
+ * selectors don't match and every code cell stays visible in the PDF.
+ */
+html:not(.print-pdf) .reveal section > .jp-Cell.jp-CodeCell > .jp-Cell-inputWrapper {
+    display: none;
+}
+html:not(.print-pdf) .reveal section.show-code > .jp-Cell.jp-CodeCell > .jp-Cell-inputWrapper {
+    display: block;
+}
+.reveal section > .jp-Cell.jp-MarkdownCell img {
+    cursor: pointer;
+}
+
+/* Semantic colour cues used inline (matches Mark's red-for-emphasis convention).
+ * Wrap a phrase in <span class="color-red">…</span> instead of inline style. */
+.reveal .color-red { color: #cc0000; }
