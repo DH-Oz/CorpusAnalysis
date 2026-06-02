@@ -10,6 +10,9 @@ wheels/
 .venv/
 .python-version
 
+# uv lockfile (the project ships conda + requirements.txt; `uv run` regenerates this locally)
+uv.lock
+
 # Jupyter
 .ipynb_checkpoints/
 Untitled*.ipynb
