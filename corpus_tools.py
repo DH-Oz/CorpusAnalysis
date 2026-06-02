@@ -140,7 +140,7 @@ def distinctive_terms(matrix, features):
     return document_freqs
 
 
-def comparison_cloud(matrix, features, labels, size=900, max_words=60):
+def comparison_cloud(matrix, features, labels, size=900, max_words=60, random_state=42):
     """Draw an R-style comparison word cloud: a disc split into wedges.
 
     matrix is an (n_documents x n_terms) count array; features names the terms
@@ -190,6 +190,7 @@ def comparison_cloud(matrix, features, labels, size=900, max_words=60):
             prefer_horizontal=0.95,
             relative_scaling=0.5,
             color_func=one_colour,
+            random_state=random_state,
         ).generate_from_frequencies(document_freqs[document_index])
         axes.imshow(cloud, interpolation="bilinear")
 

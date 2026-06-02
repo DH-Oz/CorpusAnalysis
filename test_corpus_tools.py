@@ -175,6 +175,32 @@ def test_comparison_cloud_runs_without_error():
     plt.close("all")
 
 
+def _comparison_cloud_png_bytes():
+    import io
+
+    import matplotlib.pyplot as plt
+
+    plt.close("all")
+    matrix = numpy.array(
+        [[9, 1, 4, 0, 7, 2], [0, 8, 1, 6, 1, 5], [3, 2, 7, 1, 0, 9]]
+    )
+    features = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta"]
+    comparison_cloud(matrix, features, ["doc one", "doc two", "doc three"], size=400)
+    buffer = io.BytesIO()
+    plt.gcf().savefig(buffer, format="png")
+    plt.close("all")
+    return buffer.getvalue()
+
+
+def test_comparison_cloud_is_reproducible():
+    # The change-report relies on git diff over figures/: an unchanged analysis
+    # must produce a byte-identical PNG, or every regeneration looks like churn.
+    # The word-packing layout must be seeded for that to hold.
+    first = _comparison_cloud_png_bytes()
+    second = _comparison_cloud_png_bytes()
+    assert first == second
+
+
 def test_cooccurrence_graph_links_cooccurring_categories():
     from corpus_tools import cooccurrence_graph
 
