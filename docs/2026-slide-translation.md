@@ -1,244 +1,213 @@
-# 2025 → 2026 slide translation
+# Rebuilding the lectures for 2026
 
-Per-deck change-list for the R → Python pivot. The 2026 lectures are rebuilt as
-**Google Slides** by Mark; this document says, slide by slide, what each 2025
-(R) slide becomes in 2026 — a `figures/` image, rewritten text, or unchanged.
+The hand-off for turning the 2025 R/Rmd decks into the 2026 lectures. This is a
+presentation pivot, not a redesign: the lessons keep the shape Mark and Brian
+built over three deliveries; only the R becomes Python.
 
-**Figure source:** every teaching figure is regenerated from the course corpus
-by `tools/export_figures.py` and lives in `figures/`. Run
-`uv run python tools/export_figures.py`; `git diff --stat figures/` then names
-any image that changed. Mark's own published research figures (his papers) are
-*not* course-corpus figures and cannot be regenerated here — they are flagged
-"keep (Mark's research)".
+Three rules run through every page.
 
-Page numbers are within each split PDF in `2025-slides/` (each file starts at
-its own page 1).
+- **Non-code slides stay 1:1 with 2025.** Title cards, epigraphs, the agenda,
+  paper showcases, photos, and memes carry over unchanged: same image, same
+  words. Mark talks over them, so the slide stays the image.
+- **Every analysis figure is live Python output.** Each one comes from
+  `figures/`, regenerated from the corpus, so it runs 1790 to 2026 and includes
+  Biden and Trump. The 2025 R PNGs stop around 1885 or pre-date Trump. None of
+  them belong on a 2026 slide.
+- **New prose is rare, and follows the voice rules.** Only the install steps,
+  the tool names, and a few bridges are genuinely new. Keep them plain.
 
-Action tags: **FIG** (swap in a `figures/` image) · **TEXT** (rewrite prose) ·
-**KEEP** (carries over unchanged) · **LOGISTICS** (links/QR) · **OUTPUT**
-(R console output → screenshot of the Python notebook's output).
+Lectures are rebuilt in Google Slides. Figures live in `figures/`: the
+code-along notebooks make most of them (`tools/export_figures.py`), and
+`slide-figures.ipynb` makes the three that no code-along notebook produces.
+`dictionaries/liwcdict.dic` stays local and never ships.
 
----
-
-## D1-AM-intro (Mark) — `2025-slides/D1-AM-intro.pdf`, 45 pp
-
-Mostly Mark's verbatim intro. The R content is the install section and the
-"first corpus analysis" demo, whose plots are exactly notebook 1's ten figures.
-
-### Figures — one-to-one with `1-sotu-first-look`
-
-| 2025 p# | Slide | 2026 figure |
-|---|---|---|
-| 28 | Token-length over time (ggplot **line**, by party) | `figures/1-sotu-first-look-00.png` — note: ours is a **scatter**, not a line (speeches are discrete events) |
-| 30 | SOTU word cloud (corpus-wide top terms) | `figures/1-sotu-first-look-01.png` |
-| 35 | Dendrogram, every speech, Euclidean (237 leaves) | `figures/1-sotu-first-look-02.png` |
-| 36 | Dendrogram, modern (1977+), Euclidean | `figures/1-sotu-first-look-03.png` |
-| 37 | Dendrogram, modern (1977+), cosine | `figures/1-sotu-first-look-04.png` |
-| 39 | Dendrogram, founders (pre-1850), Euclidean | `figures/1-sotu-first-look-05.png` |
-| 40 | Dendrogram, founders (pre-1850), cosine | `figures/1-sotu-first-look-06.png` |
-| 41 | Comparison cloud — Washington's 8 messages | `figures/1-sotu-first-look-07.png` |
-| 42 | Comparison cloud — Adams + Jefferson | `figures/1-sotu-first-look-08.png` |
-| 43 | Comparison cloud — Obama + Trump | `figures/1-sotu-first-look-09.png` |
-
-### Text / tool-name changes
-
-| 2025 p# | Slide | Action | Change |
-|---|---|---|---|
-| 5 | Agenda | TEXT | "R installation" → "Python install & verification"; "(re)introduction to quanteda" → "…to document-feature matrices"; "more quanteda and LIWC" → "more document-feature matrices and LIWC" |
-| 9–12 | Beginner notes (otherwise verbatim) | TEXT | one phrase: "update **R** and all packages" → "update **Python** and your packages" |
-| 21 | "Installing R" divider | TEXT | → "Installing Python" |
-| 22 | Installing the R environment (R / RStudio / RMarkdown / RTools) | TEXT | → Miniconda + Jupyter install & verify; drop the R-pirate art (or a neutral image) |
-| 23 | "Your first RMarkdown" — `install.packages(...)` chunk | TEXT | → "Verifying your environment": the notebook's import-check cell (`import sotu, pandas, …`) |
-| 24 | "Follow along: corpusmasterclass0.Rmd" | TEXT | → "Follow along: **1-sotu-first-look.ipynb**" |
-| 26 | SOTU bullets + `.rda` corpus list | TEXT | "Available natively in **quanteda.corpora**" → "Available via the **sotu** package"; drop the `data_corpus_*.rda` list (quanteda-only). Photos KEEP |
-| 31 | `brewer.pal` R help | TEXT+FIG | → matplotlib colormaps; use `day-1/img/matplotlib-palettes.png` as the reference image |
-| 29 | `head(dfmat_sotu)` / `topfeatures()` R console | OUTPUT | screenshot the Python DFM + top-20 output from notebook 1 |
-| 34 | LDA `get_terms()` R console (8 topics) | OUTPUT | screenshot the Python `top_topics()` output (notebook 1 does 8- then 5-topic) |
-
-### Keep (Mark's research or general concept — no change)
-
-- p1 title · p2–4 McCarthy / *Tempest* epigraphs · p6 introductions · p7 sticky-note protocol · p13 divider · p25 "doing math" meme · p33 ColorBrewer palette theory · p38 distance-metrics diagram · p44 feedback · p45 thanks.
-- **Mark's research figures (keep):** p17 BLM emoji/hashtag networks · p18 masculinity-extremism dendrogram · p20 vaccine-discourse stacked area. (p18 previews the dendrogram technique taught later.)
-- p14–16, p19 PhilPapers / journal screenshots — KEEP.
-- p32 ColorBrewer website — KEEP (tool-agnostic) or swap to a matplotlib reference, your call.
-
-### Logistics
-
-- p8 "Files available here" QR + `tinyurl.com/yc4awanh` → **LOGISTICS**: new release-zip link once the GitHub release exists.
+Each session below lists its objectives, the slides that stay 1:1, then every
+slide to change. New or edited slides carry the literal text; swapped images
+carry a `figures/` path; text edits show before → after. Page numbers are within
+each split PDF in `2025-slides/`.
 
 ---
 
-## D1-PM-wordcloud-hclust (Brian, code-along) — `2025-slides/D1-PM-wordcloud-hclust.pdf`, 11 pp
+## D1-AM — Mark — A first look at a corpus
 
-Brian's first type-along. **No course-corpus figures** — this is the RStudio/RMarkdown setup ritual (Hello World, knit to a report) plus a live wordcloud. The 2026 equivalent is the Jupyter workflow + notebook 1.
+*Objectives (≤3):* (1) say what counting words across a whole corpus shows that reading them one at a time cannot; (2) start Python and Jupyter and confirm the environment works; (3) load the State of the Union corpus and read its basic shape.
 
-| p# | Slide | Action | Change |
-|---|---|---|---|
-| 1 | "Day 1 PM: Type-along with Brian" divider | KEEP | |
-| 2 | Agenda — follow-along demos | TEXT | "Technical Validation: making a markdown document; generating a PDF report" → reframe for Jupyter (run a notebook; export only if kept) |
-| 3 | "Technical Validation" divider | KEEP | |
-| 4 | Hello World in RMarkdown (RStudio screenshot) | TEXT+IMG | → Jupyter "Hello World": new notebook, run a cell; replace RStudio screenshot with Jupyter |
-| 5 | "Run current chunk" (RStudio `plot(cars)`) | IMG | → Jupyter "run a cell" screenshot |
-| 6 | "Add hello world" — `` ```{r} print("Hello World") `` | TEXT | → a Python cell: `print("Hello World")` |
-| 7 | "Preview, then Publish" — knit to Word/PDF | TEXT+IMG | knit → nbconvert export, or drop the report-publishing beat. The Atlantic "scientific paper is obsolete" link KEEPS |
-| 8 | "What is Markdown?" (Gruber) | KEEP | tool-agnostic |
-| 9 | "Getting Started with Corpus Analysis" divider | KEEP | |
-| 10 | "Code along … generate a wordcloud" | TEXT | code-along = notebook 1; the live wordcloud is `figures/1-sotu-first-look-01.png` if a static is wanted |
-| 11 | Sticky-note feedback | KEEP | |
+*Stays 1:1 (do not touch):* title, the McCarthy and Tempest epigraphs, the agenda layout, the introductions and sticky-note protocol, the PhilPapers and journal screenshots, Mark's three research figures (BLM networks, masculinity dendrogram, vaccine stacked-area), the "doing math" meme, the distance-metrics illustration, the feedback and closing slides.
 
-**Open decision:** the RMarkdown "knit to a PDF report" workflow (pp4–7) has no clean Jupyter equivalent students need. Likely simplify to "make a notebook, run cells, see output" and drop the report-publishing beat — Brian's call.
+### Slides to change
 
----
+**Slide 5 — agenda (text).** "R installation" → "Python install". "quanteda" → "document-feature matrices".
 
-## D2-AM-demos (Brian) — `2025-slides/D2-AM-demos.pdf`, 5 pp
+**Slide 8 — "files available here" QR (logistics).** Still points at the 2025 zip. Repoint to the release link once the GitHub release exists.
 
-Brian's live-demo showcase. Tool-agnostic agenda + Brian's own research figures. **Essentially all KEEP** — no R tool-names, no course-corpus figures to swap.
+**Slides 22–24 — the install sequence (new text).** The 2025 single "Installing the R environment" slide becomes three. Drop the R "Code Like a Pirate!" mascot. Full slide text:
 
-| p# | Slide | Action | Note |
-|---|---|---|---|
-| 1 | "Day 2 AM: Live demos" divider | KEEP | |
-| 2 | Agenda (wordcloud, topic models, hierarchical clustering, comparison clouds, dispersion) | KEEP | tool-agnostic; the techniques live in notebooks 1 and 3a |
-| 3 | "Brian's Research" — Gab racial-superiority dispersion plot + topic table + Zenodo links | KEEP | Brian's published research (content-warning slide), not course corpus |
-| 4 | "AI (LLMs) for data analysis" — BERTopic, sentiment, summarisation | KEEP | after-school; these are already Python-world tools |
-| 5 | Sticky-note feedback | KEEP | |
+> **Slide 22 — Installing Python**
+> - Install Miniconda from https://www.anaconda.com/docs/getting-started/miniconda/main . It installs in your user folder and needs no admin rights.
+> - Download the course zip from https://DH-Oz.github.io/CorpusAnalysis .
+> - On a locked-down machine, run the notebooks in Google Colab: https://colab.research.google.com .
+>
+> *Spoken, not on the slide:* this replaces the five R bullets (R / RStudio / RMarkdown / RTools / Linux-see-Brian). Day-1 AM verifies an install students did before class. A Mac with admin can use `brew install --cask miniconda`; the direct `.pkg` needs no admin. Linux: see Brian.
 
-Nothing to change — the demos draw on notebooks 1 and 3a, which already exist.
+> **Slide 23 — What is an environment?**
+> - An environment bundles one copy of Python with the exact libraries a project needs.
+> - It stays separate from the rest of your computer.
+> - Different projects can need different versions of the same library. Each environment keeps its own.
+> - `environment.yml` lists everything this course needs. Every student's `corpusanalysis` comes out identical.
+> - You can delete and recreate it any time. Nothing else on your machine changes.
+>
+> *Spoken:* R students `install.packages` globally, so this idea is new. It sets up the `conda activate corpusanalysis` line on slide 24.
 
----
+> **Slide 24 — Setting up and starting Jupyter**
+> 1. Unzip the course zip onto your Desktop.
+> 2. Open a terminal.
+>    - Mac: ⌘ + Space, then type `Terminal`.
+>    - Windows: open Anaconda Prompt from the Start menu.
+> 3. Move into the folder. Type `cd `, then drag the folder onto the terminal. Press Enter.
+> 4. The first time, build the environment: `conda env create -f environment.yml`
+> 5. Activate it: `conda activate corpusanalysis`
+> 6. Start Jupyter: `jupyter lab`
+> 7. In the Day 1 notebook, type `print("Hello, world!")` and press Shift + Enter.
+>
+> *Spoken:* Windows must use Anaconda Prompt, not plain cmd. Dragging the folder pastes the path, so nobody types one. After the first run it is just steps 2, 5, 6. Split 24a/24b if one slide runs dense.
 
-## D2-PM-dfm-collocations (Mark) — `2025-slides/D2-PM-dfm-collocations.pdf`, 37 pp
+A `0-setup-check.ipynb` smoke test then runs before notebook 1.
 
-Mark's LIWC + dictionaries + matrices lecture. Maps to **notebook 2 (2-dictionary-content)**. The category-trend plots and the co-occurrence networks are notebook 2's figures, and ours are **scatter, not the 2025 lines** (speeches are discrete). `figures/` for notebook 2 was regenerated this session with `liwcdict.dic` in place, so it now carries the LIWC emotion plots too — **15 figures**: MAC trends `00–06`, networks `07–08`, LIWC emotions `09–14`.
+**First-look figures → notebook 1's live output.** Each runs to 2026, including Biden and Trump:
+- length scatter → `figures/1-sotu-first-look-00.png` (points, not the 2025 line: speeches are discrete events)
+- corpus wordcloud → `figures/1-sotu-first-look-01.png`
+- five dendrograms, metric × era → `figures/1-sotu-first-look-02.png` … `-06.png`
+- three comparison clouds → `figures/1-sotu-first-look-07.png` … `-09.png`
 
-### Figures → notebook 2 (all scatter, not lines)
+**Console output → notebook output.** `head(dfmat_sotu)`, `topfeatures()`, the LDA term table (pp29, 34): screenshot the Python notebook running, not the R console.
 
-| 2025 p# | Slide | 2026 figure |
-|---|---|---|
-| 8 | LIWC `liwcalike` table (WPS, WC, Sixltr, Dic, function, pronoun…) | OUTPUT: screenshot notebook 2's `liwcalike(...)` table — `corpus_tools.liwcalike` produces exactly these columns |
-| 10 | WC (word count) over year | **GAP** — a LIWC *summary* metric, not a category %. Not plotted by notebook 2. Add it, or drop (≈ notebook 1's token-length plot) |
-| 11 | WPS (words per sentence) over year | **GAP** — same; add or drop |
-| 12 | Posemo over year | `figures/2-dictionary-content-10.png` (LIWC: Posemo) |
-| 13 | Anx over year | `…-12.png` (Anx) |
-| 14 | Anger over year | `…-13.png` (Anger) |
-| 15 | Sad over year | `…-14.png` (Sad) |
-| 20–26 | MAC-D trends: Family, Group, Reciprocity, Heroism, Deference, Fairness, Property | `figures/2-dictionary-content-00 … -06` (`plot_category` scatters, one per MAC virtue) |
-| 35 | Two MAC co-occurrence networks (force-directed + circular) | `…-07.png` (spring) + `…-08.png` (circular) |
-
-LIWC emotion set generated is Affect/Posemo/Negemo/Anx/Anger/Sad (`09–14`); the deck shows four of them. **Reconcile** which category trends Mark wants on slides so notebook 2 emits exactly that set. Keeping the WC/WPS summaries (pp10–11) means adding two plots; `liwcdict.dic` stays local/gitignored, the resulting PNGs are safe to ship.
-
-### Text / tool changes
-
-| p# | Slide | Action | Change |
-|---|---|---|---|
-| 1 | "Day 2 PM: **quanteda**" + "Follow along: corpusmasterclass2.Rmd" | TEXT | → "Day 2 PM: document-feature matrices"; "Follow along: **2-dictionary-content.ipynb**" |
-| 2 | quanteda.io site ("R package by Kenneth Benoit") | TEXT+IMG | → the Python stack: `CountVectorizer` for the DFM, the `liwc` package for dictionaries; drop the quanteda.io screenshot |
-| 34 | "Live demo!" + `tinyurl.com/bdz7chz2` | LOGISTICS | update the link |
-
-### Keep
-
-p3 "LIWCing at SOTUs" divider · p4 The Count · p5–7 LIWC / LIWC-22 sites + Cash (update to LIWC-22 if desired) · p9 dictionary category lists (same `.dic` files) · p16 "beyond base LIWC" divider · p17 custom-dictionaries intro · p18–19 Mark's MAC-D paper + the MAC-D-vs-MFD opinion · p27 "semantic networks" divider · p28 Firth "company it keeps" · p29 "RAMSIFY" · p30 "always has been" meme · p31 transpose diagram · p32 Top Gun · p33 "not commutative" · p36 feedback · p37 thanks.
+**Palettes (p31).** `brewer.pal` → matplotlib colormaps. Reference image: `day-1/img/matplotlib-palettes.png`.
 
 ---
 
-## D3-AM-german-liwc (Mark) — `2025-slides/D3-AM-german-liwc.pdf`, 47 pp
+## D1-PM — Brian, code-along — your first wordcloud and clustering
 
-The biggest deck, two halves: **nuclear / dispersion / decade-networks → notebook 3a**, then **German Nietzsche → notebook 3b**. Mark's "American presidents are war criminals :)" presidential banter (pp12–20) is the interjection device — **KEEP all of it**.
+*Objectives (≤3):* (1) run a Jupyter cell, read its output, and recover when it errors; (2) build a wordcloud and a hierarchical clustering from the corpus by typing along.
 
-### Nuclear half → notebook 3a
+*Stays 1:1 (do not touch):* the dividers, the "What is Markdown?" explanation, the Atlantic "scientific paper is obsolete" link, the sticky-note slide.
 
-| 2025 p# | Slide | 2026 |
-|---|---|---|
-| 5 | R collocations (united states, federal government…) | OUTPUT: notebook 3a's nltk bigram / likelihood-ratio output |
-| 6 | keyness table (weapons, proliferation… chi²) | OUTPUT: 3a's chi-squared keyness output |
-| 8 | dispersion `atom*` | `figures/3a-collocations-dispersion-00.png` |
-| 9 | dispersion `nuclear*` | `…-01.png` |
-| 10 | nuke category % over year | `…-02.png` |
-| 11 | semantic network, **whole SOTU corpus** | **GAP** — 3a does per-decade only. Add a whole-corpus network, or use a decade |
-| 12–19 | semantic networks, 1940s–2010s (one per decade) | `…-03/04 … -11` (decade_network loop; 1940 worked example is `03`/`04`) |
+### Slides to change
 
-### German half → notebook 3b
+**Slides 4–7 — RStudio / RMarkdown screenshots (images).** Replace with Jupyter screenshots to capture → `day-1/img/jupyter-*.png` (a fresh notebook, a code cell, the run output). [screenshots not yet taken]
 
-| 2025 p# | Slide | 2026 |
-|---|---|---|
-| 23, 33 | Nietzsche book length (Tokens vs Year) | 3b book-length scatter |
-| 24 | German wordcloud (menschen, leben, macht…) | 3b German wordcloud |
-| 25 | `topfeatures` (German) | OUTPUT |
-| 26 | LDA topics (German) | OUTPUT |
-| 27 | per-book top features | OUTPUT |
-| 28 | dendrogram (Nietzsche books) | 3b dendrogram |
-| 29–30 | comparison clouds (early / late Nietzsche) | 3b comparison clouds (×2) |
-| 31 | dispersion `scham*/schmach*/schand*` (shame) | 3b German dispersion (shame) |
-| 32 | dispersion `vertrau*/misstrau*` (trust) | 3b German dispersion (trust) |
-| 34 | Sixltr vs Year | 3b metric scatter |
-| 35–37 | instinct / shame / virtue vs Year | 3b `nietzsche.dic` category scatters |
-| 38–40 | concept network — book (force + circle), paragraph (circle) | 3b concept egonet (book + paragraph) |
-| 42–44 | egonets: solitude / modesty / humility | 3b per-concept egonet loop |
-| 45 | 'virtue' `[tugend*]` keyness + Google Translate | OUTPUT (3b `keyness_top`); KEEP the Google-Translate device |
+**Hello-World chunk (text).** The R chunk `print("Hello World")` → a Python cell: `print("Hello, world!")`.
 
-All German figures are `figures/3b-nietzsche-german-paragraphs-*.png` (20 figures; exact index per figure reads off notebook 3b). The metric/category trends are **scatter** (the 2025 ones already are).
+**Follow-along pointer (text).** "Follow along: corpusmasterclass0.Rmd" → "Follow along: `1-sotu-first-look.ipynb`".
 
-### Text / tool changes
-
-| p# | Slide | Action | Change |
-|---|---|---|---|
-| 1 | "Day 3 AM…" + "Follow along: corpusmasterclass3a.Rmd / 3b.Rmd" | TEXT | → "Follow along: **3a-collocations-dispersion.ipynb**, **3b-nietzsche-german-paragraphs.ipynb**" |
-| 2 | "State of the Union addresses" (quanteda.corpora) | TEXT | "quanteda.corpora" → "sotu" (same edit as D1-AM p26) |
-
-### Keep
-
-p3 nuclear-theme images (towers, bomb, Einstein, Oppenheimer) · p4 bigram pride-flag joke · p7 nuke.dic list · p20 conclusion + banter · p21 Monty Python · p22 nietzschesource.org · p38 Mark's *Nietzsche's Moral Psychology* cover · p41 Carly Simon "You're So Vain" · p46 feedback · p47 thanks · **all presidential war-criminal banter (pp12–20)**.
-
-**German-LIWC note:** the title says "LIWC in German", but 2026 uses the **open `nietzsche.dic`** moral-psychology dictionary on the Nietzsche corpus instead of a commercial German LIWC — no gitignored dependency, and all 20 of notebook 3b's figures generate cleanly.
+**"Knit to PDF report" beat — drop.** No Jupyter equivalent students need. Cut the slide, or let "run cells, see output" stand in.
 
 ---
 
-## D3-PM-custom-dict (Brian, code-along) — `2025-slides/D3-PM-custom-dict.pdf`, 3 pp
+## D2-AM — Brian — demos of what corpus analysis can do
 
-Code-along; the teaching is off-slide. **All KEEP** — no R, no figures.
+*Objectives (≤3):* (1) name the analyses the course will cover and say what question each one answers.
 
-| p# | Slide | Action |
-|---|---|---|
-| 1 | "building your own custom dictionary" divider | KEEP |
-| 2 | "Who wants to be the lab rat?…" | KEEP |
-| 3 | Sticky-note feedback | KEEP |
+*Stays 1:1 (do not touch):* everything. The agenda, Brian's Gab dispersion plot and topic table from his published work, the "AI for data analysis" slide (BERTopic, sentiment, summarisation, already Python-world tools), the sticky-note slide.
 
-Students build a `.dic` live (same format as `nuke.dic` / `macdvirtue.dic`, which ship).
+### Slides to change
+
+None. A showcase, not a build, so nothing changes in code. The agenda is tool-agnostic and the techniques live in notebooks 1 and 3a.
 
 ---
 
-## D4-AM-corpus-construction (Brian/Mark, split class) — `2025-slides/D4-AM-corpus-construction.pdf`, 7 pp
+## D2-PM — Mark — dictionaries, matrices, and networks
 
-Finding + building corpora with AI. Tool-agnostic; mostly KEEP. No figures.
+*Objectives (≤3):* (1) apply a content-analysis dictionary to a corpus and read a category as a percentage over time; (2) explain a document-feature matrix and what its transpose-times-itself product measures; (3) read a category co-occurrence network.
 
-| p# | Slide | Action | Change |
-|---|---|---|---|
-| 1 | "Day 4 AM: corpus construction" divider | KEEP | |
-| 2 | Agenda (find data; LLM chat-driven dev; live demo) | KEEP | |
-| 3 | "How to find data" (dataset sources) | KEEP | refresh any dead links (Twitter/X Powertrack pricing/status has changed) |
-| 4 | "State Hansard" (NSW Hansard API; Copilot in VSCode) | TEXT | "nsw hansard api **r-lang**" → "…python"; rest KEEP |
-| 5 | "Factiva RTF" download | KEEP | |
-| 6 | "chat driven development… Demo with **Claude 3.5 Sonnet**" | TEXT | update model name to the current Claude |
-| 7 | Sticky-note feedback | KEEP | |
+*Stays 1:1 (do not touch):* the "LIWCing at SOTUs" divider, the Count, the LIWC and LIWC-22 website shots, the dictionary category lists, Mark's MAC-D paper and his MAC-D-versus-MFD opinion, the Firth quote, the transpose diagram, the Top Gun and "always has been" memes, the "not commutative" slide, the closing.
 
----
+### Slides to change
 
-## D4-PM-brainstorming (Brian/Mark) — `2025-slides/D4-PM-brainstorming.pdf`, 1 p
+**Slide 2 — dictionary intro (text).** `quanteda` → the Python stack: `CountVectorizer` for the matrix, the `liwc` package for dictionaries.
 
-| p# | Slide | Action |
-|---|---|---|
-| 1 | Puck epilogue ("If we shadows have offended…") | KEEP |
+**Follow-along pointer (text).** "Follow along: corpusmasterclass2.Rmd" → "`2-dictionary-content.ipynb`".
 
-No teaching content; goodbyes and reflection. No changes.
+**Category-trend figures → notebook 2's scatters** (line becomes points; each runs to 2026):
+- seven MAC virtues (pp20–26) → `figures/2-dictionary-content-00.png` … `-06.png`
+- LIWC emotion trends (pp12–15) → among `figures/2-dictionary-content-09.png` … `-14.png` (regenerated once `liwcdict.dic` was in place)
+
+**Co-occurrence networks (p35) → notebook 2** (force-directed and circular): `figures/2-dictionary-content-07.png` and `-08.png`.
+
+**LIWC output table (p8) → notebook output.** Use the notebook's own `liwcalike()` table, not the R screenshot.
+
+**Optional new figures — summary metrics (pp10–11).** The 2025 deck plots LIWC word count and words-per-sentence. These are not category percentages, so they are not in notebook 2. `slide-figures.ipynb` makes them: `figures/slide-sotu-wc.png`, `figures/slide-sotu-wps.png`. Use them only if the lecture wants them.
 
 ---
 
-## Figure gaps to decide (the only things not already in `figures/`)
+## D3-AM — Mark — dispersion, networks, and German
 
-`figures/` now holds **58** images (1-sotu 10, 2-dictionary 15, 3a 13, 3b 20), all regenerated from the corpus. Three lecture figures have no current source:
+*Objectives (≤3):* (1) read a lexical-dispersion plot and say where in a text a word concentrates; (2) read a semantic network and how it shifts across decades; (3) carry the whole pipeline into German with a custom dictionary.
 
-1. **D2-PM pp10–11** — LIWC *summary* metrics WC + WPS over year. Notebook 2 plots category percentages, not these. Add two plots, or drop (WC ≈ notebook 1's token-length).
-2. **D3-AM p11** — semantic network over the *whole* SOTU corpus. Notebook 3a builds per-decade networks only. Add a whole-corpus network, or use a decade.
-3. **Category-set reconciliation** — the decks show specific category trends (7 MAC, 4 LIWC emotions, several Nietzsche categories). Decide exactly which Mark wants on slides and make notebooks 2/3b emit that set, so every figure-slide has a `figures/` image.
+*Stays 1:1 (do not touch):* the nuclear-theme images, the bigram pride-flag joke, the nuke.dic list, the Monty Python turn, the nietzschesource.org page, Mark's *Nietzsche's Moral Psychology* cover, the Carly Simon sleeve, the closing, and all of the presidential "war criminals" banter.
 
-Everything else maps to an existing `figures/` image or a small text edit.
+### Slides to change
 
+**Nuclear half → notebook 3a** (each figure runs to 2026):
+- `atom` / `nuclear` dispersions (pp8–9) → `figures/3a-collocations-dispersion-00.png`, `-01.png`
+- nuke trend (p10) → `figures/3a-collocations-dispersion-02.png`
+- decade networks 1940s–2010s (pp12–19) → `figures/3a-collocations-dispersion-03.png` … `-11.png`
+- collocation and keyness tables (pp5–6) → notebook printed output
+
+**German half → notebook 3b.** The German wordcloud, dendrogram, two comparison clouds, the `scham*` / `vertrau*` dispersions, the moral-category scatters (instinct, shame, virtue), and the concept egonets (book, paragraph, and per-concept: solitude, modesty, humility) all come from `figures/3b-nietzsche-german-paragraphs-*.png`. The German topic and per-book tables → notebook printed output. The 'virtue' `[tugend*]` keyness slide keeps its Google-Translate panel.
+
+**Optional new figure — whole-corpus nuclear network (p11).** The 2025 slide shows the nuclear network over the whole corpus; notebook 3a builds only per-decade ones. `slide-figures.ipynb` makes it: `figures/slide-sotu-nuke-network.png`.
+
+**On "LIWC in German".** 2026 uses the open `nietzsche.dic` on the Nietzsche corpus, not a commercial German LIWC. Nothing gitignored, and all of notebook 3b's figures generate cleanly.
+
+---
+
+## D3-PM — Brian, code-along — build your own dictionary
+
+*Objectives (≤3):* (1) write a small content-analysis dictionary for a question of their own and run it.
+
+*Stays 1:1 (do not touch):* all of it.
+
+### Slides to change
+
+None. A code-along that happens off the slides. The class builds a `.dic` file in the same format as `nuke.dic` and `macdvirtue.dic`, which ship.
+
+---
+
+## D4-AM — Brian and Mark — finding and building corpora
+
+*Objectives (≤3):* (1) find corpus data from public sources and bring it in; (2) use a language model to help clean and shape that data.
+
+*Stays 1:1 (do not touch):* the dataset-source list, the Hansard and Factiva walk-throughs, the closing.
+
+### Slides to change
+
+**Slide 4 — search term (text).** "nsw hansard api r-lang" → "nsw hansard api python".
+
+**Slide 6 — model name (text).** "Demo with Claude 3.5 Sonnet" → the current Claude model (e.g. Opus 4.8 for the 2026 delivery).
+
+**Source links (logistics).** Refresh any dead links; the Twitter/X access terms have changed.
+
+---
+
+## D4-PM — Brian and Mark — brainstorming and goodbyes
+
+*Stays 1:1 (do not touch):* the single Puck epilogue from *A Midsummer Night's Dream*. Reflection and goodbyes.
+
+### Slides to change
+
+None.
+
+---
+
+## The three figures only `slide-figures.ipynb` makes
+
+Two lecture slides and one network had no figure in any code-along notebook.
+`slide-figures.ipynb` makes all three from the corpus:
+
+- `figures/slide-sotu-wc.png` — words per State of the Union address over time (D2-PM)
+- `figures/slide-sotu-wps.png` — words per sentence over time (D2-PM)
+- `figures/slide-sotu-nuke-network.png` — nuclear co-occurrence across the whole corpus (D3-AM)
+
+What remains is a choice, not a gap: which category trends Mark actually puts on
+slides. The notebooks emit a superset of what the decks show, so he selects
+rather than waits for anything to be built.
