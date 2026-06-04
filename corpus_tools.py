@@ -254,7 +254,9 @@ def cooccurrence_graph(counts, labels, top_edges=40):
     return graph
 
 
-def draw_cooccurrence_network(counts, labels, top_edges=40, node_color="lightyellow", title=""):
+def draw_cooccurrence_network(
+    counts, labels, top_edges=40, node_color="lightyellow", title="", save_path=None
+):
     """Draw the category co-occurrence network for a set of documents.
 
     counts is an (n_documents x n_categories) array; labels names the categories.
@@ -262,6 +264,10 @@ def draw_cooccurrence_network(counts, labels, top_edges=40, node_color="lightyel
     category appears across the documents; each edge is widened and darkened by
     its co-occurrence weight. A fresh force-directed layout is computed every
     call. Nothing is drawn when no co-occurrences survive the pruning.
+
+    When save_path is given the figure is written there before it is shown, so the
+    saved image holds the network even under the inline backend (where show()
+    closes the figure).
     """
     graph = cooccurrence_graph(counts, labels, top_edges)
     if graph.number_of_nodes() == 0:
@@ -302,6 +308,8 @@ def draw_cooccurrence_network(counts, labels, top_edges=40, node_color="lightyel
         font_size=8,
     )
     plt.title(title)
+    if save_path is not None:
+        plt.savefig(save_path, dpi=150, bbox_inches="tight")
     plt.show()
 
 

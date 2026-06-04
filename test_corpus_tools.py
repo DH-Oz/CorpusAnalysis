@@ -246,6 +246,22 @@ def test_draw_cooccurrence_network_runs_without_error():
     plt.close("all")
 
 
+def test_draw_cooccurrence_network_writes_save_path(tmp_path):
+    # save_path must capture the drawn network. The helper shows the figure, and
+    # under the inline backend show() closes it, so saving has to happen first.
+    from corpus_tools import draw_cooccurrence_network
+
+    counts = numpy.array([[2, 1, 0], [1, 2, 1], [0, 1, 2]])
+    out = tmp_path / "net.png"
+    draw_cooccurrence_network(
+        counts, ["a", "b", "c"], top_edges=3, title="t", save_path=str(out)
+    )
+    import matplotlib.pyplot as plt
+
+    plt.close("all")
+    assert out.exists() and out.stat().st_size > 0
+
+
 def test_dispersion_plot_runs_without_error():
     from corpus_tools import dispersion_plot
 
