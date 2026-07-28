@@ -28,7 +28,7 @@ Local working directory for the `DH-Oz/CorpusAnalysis` evergreen repo — a livi
   - Students install **Miniconda + Jupyter** pre-course, then `conda env create -f environment.yml`, `conda activate corpusanalysis`, `jupyter lab`. See `README.md`, which also carries the `conda init` recovery path.
   - To add a dependency: edit `pyproject.toml` and nothing else, then `uv run python tools/sync_requirements.py`. The pre-commit hook does it for you if you forget.
 - **Notebooks**: Jupyter `.ipynb` files. Each cell carries Slideshow metadata (Slide / Sub-Slide / Fragment / Skip / Notes).
-- **Slides**: `jupyter nbconvert --to slides notebook.ipynb` → reveal.js HTML for the built/public artefacts (CI + Pages). **RISE** (`jupyterlab-rise`) is bundled in the env so instructors can also present interactively from inside JupyterLab — it works if and only if installed via the env spec, which it now is. nbconvert remains the canonical build path; RISE is the in-Jupyter live option.
+- **Slides**: `jupyter nbconvert --to slides notebook.ipynb` → reveal.js HTML for the built/public artefacts (CI + Pages). **RISE** (`jupyterlab-rise`) is in the **dev dependency group**, so instructors get it with `uv sync` and can present interactively from inside JupyterLab. It is deliberately not in the student list, since students never present from the notebook and it would only add install weight. nbconvert remains the canonical build path; RISE is the in-Jupyter live option.
 - **Site**: GitHub Pages hosts a landing page plus the rendered nbconvert slides.
 - **Distribution**: students download a **release zip** from GitHub Releases via a link on the Pages site. No git operations for students. See note `.notes/feedback_no-git-for-students.md`.
 - **Library stack for corpus analysis** (locked 2026-05-21 via Day 1 AM port):
@@ -39,7 +39,7 @@ Local working directory for the `DH-Oz/CorpusAnalysis` evergreen repo — a livi
   - `matplotlib` — plots + ColorBrewer-named colormaps via `matplotlib.colormaps[name]`
   - `wordcloud` — word-cloud rendering
   - `networkx` — collocation networks (Day 2 PM)
-  - `spacy` + `en_core_web_sm` + `de_core_news_sm` — both models shipped as **direct-URL deps** in `pyproject.toml`'s `[tool.uv.sources]` so `pip install -e .` pulls them automatically; no `python -m spacy download` step.
+  - **No spaCy.** It was in the 2026-05-21 lock and was dropped: the course teaches tokenising, stopword filtering and stemming as separate visible steps, which is what NLTK gives, whereas spaCy's `nlp(text)` does several at once and has no stemmer at all. Adding it would also mean per-language statistical models to download and verify on Day 1, for capability the lessons never use.
   - `sotu` — State of the Union corpus 1790–2026 (UCSB American Presidency Project; Peters & Woolley); the canonical demo dataset for Day 1 AM and Day 2 PM. Installed via PyPI; data ships bundled.
   - **Dev only**: `python-pptx` (image extraction from the 2025 deck), `pre-commit`, `pytest`.
 

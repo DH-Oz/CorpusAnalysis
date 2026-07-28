@@ -27,14 +27,21 @@ dependencies = [
     # stats::loess() calls, which does.
     "scikit-misc==0.5.2",
     # Text and corpus
-    "nltk==3.9.4",
+    # 3.10.0 hardens resource loading against path traversal and SSRF, and blocks XML
+    # entity expansion. nltk.download() is the one thing this course pulls over the
+    # network onto student machines, so the hardening is worth having.
+    "nltk==3.10.0",
     "liwc==0.5.0",
     "sotu==0.1.0",
 ]
 
 [dependency-groups]
+# Instructor-side only. These never reach requirements.txt, so a student install
+# stays as small as it can be. jupyterlab-rise lets an instructor present straight
+# from JupyterLab; the built decks come from tools/render_slides.py either way.
 dev = [
     "python-pptx>=1.0",
     "pre-commit>=4.0",
     "pytest>=8.0",
+    "jupyterlab-rise>=0.43",
 ]

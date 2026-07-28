@@ -1,7 +1,7 @@
 # Corpus Analysis Masterclass — conda environment.
 #
-# Miniconda supplies only Python; every library comes from requirements.txt,
-# the single dependency list, so there is nothing to keep in sync.
+# Miniconda supplies only Python; every library comes from requirements.txt, which
+# is generated from pyproject.toml, so there is nothing to keep in sync by hand.
 #
 # Usage (after installing Miniconda + downloading the release zip):
 #   cd <unpacked-folder>
@@ -12,7 +12,11 @@ name: corpusanalysis
 channels:
   - conda-forge
 dependencies:
-  - python=3.14
+  # The patch floor is not fussiness. CPython 3.14.1 shipped a dataclasses
+  # regression that crashed networkx on import, and networkx blocklists that exact
+  # interpreter in its own metadata (!=3.14.1). CPython fixed it in 3.14.2, so
+  # anything from there up is safe and a fresh solve can never land on the bad one.
+  - python>=3.14.2
   - pip
   - pip:
       - -r requirements.txt
