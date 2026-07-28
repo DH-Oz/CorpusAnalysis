@@ -255,7 +255,7 @@ def cooccurrence_graph(counts, labels, top_edges=40):
 
 
 def draw_cooccurrence_network(
-    counts, labels, top_edges=40, node_color="lightyellow", title="", save_path=None
+    counts, labels, top_edges=40, node_color="lightyellow", title="", save_path=None, ax=None
 ):
     """Draw the category co-occurrence network for a set of documents.
 
@@ -268,6 +268,11 @@ def draw_cooccurrence_network(
     When save_path is given the figure is written there before it is shown, so the
     saved image holds the network even under the inline backend (where show()
     closes the figure).
+
+    Pass ax to draw into an axes the caller already made, which is how several
+    networks go into one grid of subplots. The helper then leaves the figure alone
+    and does not show it, so the caller controls the layout. With ax left as None
+    the helper makes its own figure and shows it, as before.
     """
     graph = cooccurrence_graph(counts, labels, top_edges)
     if graph.number_of_nodes() == 0:
@@ -296,7 +301,12 @@ def draw_cooccurrence_network(
         shade = 0.85 - 0.7 * (weight / largest)
         edge_colors.append((shade, shade, shade))
 
-    plt.figure(figsize=(9, 8))
+    if ax is None:
+        figure, ax = plt.subplots(figsize=(9, 8))
+        owns_figure = True
+    else:
+        figure = ax.get_figure()
+        owns_figure = False
     networkx.draw(
         graph,
         pos=networkx.spring_layout(graph, seed=42, weight="weight"),
@@ -306,29 +316,42 @@ def draw_cooccurrence_network(
         edge_color=edge_colors,
         width=widths,
         font_size=8,
+        ax=ax,
     )
-    plt.title(title)
+    ax.set_title(title)
     if save_path is not None:
-        plt.savefig(save_path, dpi=150, bbox_inches="tight")
-    plt.show()
+        figure.savefig(save_path, dpi=150, bbox_inches="tight")
+    if owns_figure:
+        plt.show()
 
 
-def dispersion_plot(labels, lengths, positions, title, mark_size=100):
+def dispersion_plot(labels, lengths, positions, title, mark_size=100, ax=None):
     """Draw a lexical-dispersion plot, one row per document.
 
     labels, lengths, and positions are equal-length lists. For row i a grey bar
     runs from 0 to lengths[i] (the document's token count) and a black tick is
     drawn at each token index in positions[i] (every occurrence being traced).
     Rows read top to bottom in the order given.
+
+    Pass ax to draw into an axes the caller already made, for putting several
+    plots in one grid. With ax left as None the helper makes its own figure and
+    shows it, as before.
     """
-    plt.figure(figsize=(11, max(2.5, 0.30 * len(labels))))
+    if ax is None:
+        figure, ax = plt.subplots(figsize=(11, max(2.5, 0.30 * len(labels))))
+        owns_figure = True
+    else:
+        figure = ax.get_figure()
+        owns_figure = False
     for plot_row in range(len(labels)):
-        plt.hlines(plot_row, 0, lengths[plot_row], color="lightgray", linewidth=6, zorder=1)
+        ax.hlines(plot_row, 0, lengths[plot_row], color="lightgray", linewidth=6, zorder=1)
         marks = positions[plot_row]
-        plt.scatter(marks, [plot_row] * len(marks), marker="|", s=mark_size, color="black", zorder=2)
-    plt.yticks(range(len(labels)), labels, fontsize=7)
-    plt.xlabel("Token index")
-    plt.title(title)
-    plt.gca().invert_yaxis()
-    plt.tight_layout()
-    plt.show()
+        ax.scatter(marks, [plot_row] * len(marks), marker="|", s=mark_size, color="black", zorder=2)
+    ax.set_yticks(range(len(labels)))
+    ax.set_yticklabels(labels, fontsize=7)
+    ax.set_xlabel("Token index")
+    ax.set_title(title)
+    ax.invert_yaxis()
+    if owns_figure:
+        figure.tight_layout()
+        plt.show()

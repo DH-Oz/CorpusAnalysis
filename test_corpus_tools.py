@@ -272,3 +272,48 @@ def test_dispersion_plot_runs_without_error():
     import matplotlib.pyplot as plt
 
     plt.close("all")
+
+
+def test_draw_cooccurrence_network_draws_into_a_given_axes():
+    # Passing ax lets the caller place the network in a grid: the helper must draw
+    # into that axes and must not open a figure of its own.
+    import matplotlib.pyplot as plt
+
+    from corpus_tools import draw_cooccurrence_network
+
+    plt.close("all")
+    counts = numpy.array([[2, 1, 0], [1, 2, 1], [0, 1, 2]])
+    figure, axes = plt.subplots()
+    before = len(plt.get_fignums())
+    draw_cooccurrence_network(counts, ["a", "b", "c"], top_edges=3, title="t", ax=axes)
+    assert len(plt.get_fignums()) == before
+    assert len(axes.collections) > 0
+    plt.close("all")
+
+
+def test_dispersion_plot_draws_into_a_given_axes():
+    import matplotlib.pyplot as plt
+
+    from corpus_tools import dispersion_plot
+
+    plt.close("all")
+    figure, axes = plt.subplots()
+    before = len(plt.get_fignums())
+    dispersion_plot(["doc one", "doc two"], [100, 80], [[3, 40, 90], [10, 60]], title="t", ax=axes)
+    assert len(plt.get_fignums()) == before
+    assert len(axes.collections) > 0
+    plt.close("all")
+
+
+def test_plot_helpers_still_make_their_own_figure_by_default():
+    import matplotlib.pyplot as plt
+
+    from corpus_tools import dispersion_plot, draw_cooccurrence_network
+
+    plt.close("all")
+    draw_cooccurrence_network(numpy.array([[2, 1], [1, 2]]), ["a", "b"], top_edges=2)
+    assert len(plt.get_fignums()) >= 1
+    plt.close("all")
+    dispersion_plot(["one"], [50], [[1, 20]], title="t")
+    assert len(plt.get_fignums()) >= 1
+    plt.close("all")
