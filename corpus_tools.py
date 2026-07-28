@@ -45,6 +45,7 @@ import networkx
 import numpy
 import pandas
 import wordcloud
+from skmisc.loess import loess
 
 
 def liwcalike(texts, docnames, dictionary_path, tolower=True, digits=2):
@@ -355,3 +356,44 @@ def dispersion_plot(labels, lengths, positions, title, mark_size=100, ax=None):
     if owns_figure:
         figure.tight_layout()
         plt.show()
+
+
+def loess_band(x, y, ax=None, points=200, alpha=0.05, color="crimson", label=None):
+    """Fit a loess smoother and return its curve with a confidence band.
+
+    x and y are equal-length sequences. The curve is evaluated at `points`
+    evenly spaced positions across the range of x. alpha=0.05 gives the 95%
+    band, matching what ggplot2's geom_smooth() draws by default.
+
+    Returns (grid, fitted, lower, upper), four equal-length arrays, so the
+    numbers can be used or checked without going through the plot.
+
+    Loess rather than lowess: both are locally weighted smoothers, but loess
+    carries the standard errors a band needs, and statsmodels' lowess does not.
+    scikit-misc wraps the same loess code R's stats::loess() calls, so the curve
+    matches the figure readers already know from published work.
+
+    Pass ax to draw the curve and its band into an axes the caller already made.
+    With ax left as None nothing is drawn and only the numbers come back. The
+    band widens where the data thins out, which at the edges of a corpus can put
+    it below zero; that is the smoother running out of evidence, not an error,
+    and it is left visible rather than clipped.
+    """
+    x_values = numpy.asarray(x, dtype=float)
+    y_values = numpy.asarray(y, dtype=float)
+
+    model = loess(x_values, y_values)
+    model.fit()
+    grid = numpy.linspace(x_values.min(), x_values.max(), points)
+    prediction = model.predict(grid, stderror=True)
+    band = prediction.confidence(alpha=alpha)
+
+    fitted = numpy.asarray(prediction.values, dtype=float)
+    lower = numpy.asarray(band.lower, dtype=float)
+    upper = numpy.asarray(band.upper, dtype=float)
+
+    if ax is not None:
+        ax.plot(grid, fitted, color=color, linewidth=2, label=label, zorder=3)
+        ax.fill_between(grid, lower, upper, color=color, alpha=0.2, zorder=2)
+
+    return grid, fitted, lower, upper

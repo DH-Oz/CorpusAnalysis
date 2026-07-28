@@ -317,3 +317,34 @@ def test_plot_helpers_still_make_their_own_figure_by_default():
     dispersion_plot(["one"], [50], [[1, 20]], title="t")
     assert len(plt.get_fignums()) >= 1
     plt.close("all")
+
+
+def test_loess_band_returns_a_band_that_brackets_its_curve():
+    # The band is the point of the helper, so check the numbers rather than the drawing.
+    from corpus_tools import loess_band
+
+    x = numpy.arange(100, dtype=float)
+    y = x * 2.0 + numpy.sin(x / 5.0) * 10.0
+    grid, fitted, lower, upper = loess_band(x, y, points=50)
+    assert len(grid) == len(fitted) == len(lower) == len(upper) == 50
+    assert numpy.all(upper > lower)
+    assert numpy.all(fitted >= lower) and numpy.all(fitted <= upper)
+    # A smoother should track a strongly linear series closely.
+    assert numpy.corrcoef(grid, fitted)[0, 1] > 0.99
+
+
+def test_loess_band_draws_into_a_given_axes_without_opening_a_figure():
+    import matplotlib.pyplot as plt
+
+    from corpus_tools import loess_band
+
+    plt.close("all")
+    x = numpy.arange(60, dtype=float)
+    y = x * 1.5 + numpy.cos(x / 4.0) * 5.0
+    figure, axes = plt.subplots()
+    before = len(plt.get_fignums())
+    loess_band(x, y, ax=axes)
+    assert len(plt.get_fignums()) == before
+    assert len(axes.lines) >= 1
+    assert any("FillBetween" in type(c).__name__ for c in axes.collections)
+    plt.close("all")

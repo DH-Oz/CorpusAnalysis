@@ -9,11 +9,18 @@ jupyter==1.1.1
 numpy==2.4.4
 pandas==2.3.3
 matplotlib==3.10.9
+seaborn==0.13.2
 scipy==1.17.1
 scikit-learn==1.8.0
 statsmodels==0.14.6
 networkx==3.6.1
 wordcloud==1.9.6
+
+# Loess smoothing with confidence bands. scikit-misc wraps the same loess code
+# R's stats::loess() calls, so a smoothed curve here matches the geom_smooth()
+# figure readers already know. statsmodels' lowess returns no standard errors,
+# which is why it cannot draw the band on its own.
+scikit-misc==0.5.2
 
 # Text and corpus
 nltk==3.9.4
