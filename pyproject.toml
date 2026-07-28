@@ -14,7 +14,7 @@ dependencies = [
     "jupyter==1.1.1",
     # Data and plotting
     "numpy==2.4.4",
-    "pandas==2.3.3",
+    "pandas==3.0.5",
     "matplotlib==3.10.9",
     "seaborn==0.13.2",
     # Interactive plots. The wheel ships a JupyterLab mime renderer, so hover and legend
@@ -36,7 +36,7 @@ dependencies = [
     # network onto student machines, so the hardening is worth having.
     "nltk==3.10.0",
     "liwc==0.5.0",
-    "sotu==0.1.0",
+    "sotu==0.1.1",
 ]
 
 [dependency-groups]
