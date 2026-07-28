@@ -17,6 +17,10 @@ dependencies = [
     "pandas==2.3.3",
     "matplotlib==3.10.9",
     "seaborn==0.13.2",
+    # Interactive plots. The wheel ships a JupyterLab mime renderer, so hover and legend
+    # filtering work offline with no second install step, and Colab is detected
+    # automatically. Runtime deps are only narwhals and packaging.
+    "plotly==6.9.0",
     "scipy==1.17.1",
     "scikit-learn==1.8.0",
     "statsmodels==0.14.6",
