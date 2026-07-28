@@ -69,3 +69,6 @@ day-*/corpus_tools.py
 day-*/*.slides.html
 day-*/*.slides.pdf
 day-*/*.qa.md
+
+# Figures students generate by running the notebooks
+sotu-dendrogram.pdf
