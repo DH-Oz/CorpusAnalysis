@@ -35,7 +35,7 @@ Local working directory for the `DH-Oz/CorpusAnalysis` evergreen repo — a livi
   - `nltk` — tokenisation + stopwords + `nltk.download("state_union" | "punkt" | "stopwords" | …)` data
   - `scikit-learn` — `CountVectorizer` for document-feature matrices; `LatentDirichletAllocation` for topic modelling
   - `scipy` — `scipy.cluster.hierarchy` (dendrograms), `scipy.spatial.distance` (Euclidean / cosine / Manhattan / …)
-  - `numpy`, `pandas<3`. The cap comes from `sotu`, which is **our own package**, so it is a decision of ours rather than an external constraint. All five code-along notebooks were run under pandas 3.0.3 on 2026-07-28: 131 outputs, 2 differences, one of them an improvement. Lifting it is a `sotu` release away and is deliberately held until after the 2026 delivery.
+  - `numpy`, `pandas` 3.x. The old `pandas<3` cap came from `sotu`, our own package, so it was a decision of ours rather than an external constraint. `sotu` 0.1.1 (2026-07-28) lifted it to `pandas>=2.0`, and the course moved to pandas 3.0.5 the same day. Verified before the move: all five notebooks execute with zero errors, and seven figures spanning every kind the course draws were inspected by eye, because a byte-diff of a PNG says nothing useful. String columns now carry the dedicated `str` dtype in place of `object`.
   - `matplotlib` — plots + ColorBrewer-named colormaps via `matplotlib.colormaps[name]`
   - `seaborn` — the statistical layer over matplotlib; `scatterplot(hue=...)` colours by a column and builds the legend, which is most of what the course asks a plot to do
   - `scikit-misc` — `skmisc.loess`, the only loess in Python carrying standard errors, so `corpus_tools.loess_band` can draw a confidence band. `statsmodels`' lowess cannot.

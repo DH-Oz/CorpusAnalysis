@@ -42,7 +42,7 @@ Each Day-N task produces Jupyter notebooks under `day-N/` (at repo root — no `
 
 ## 5. Deferred decisions (mirror of `CLAUDE.md` § Open / deferred decisions)
 
-- [x] **Python library stack** — locked 2026-05-21, revised 2026-07-28. See CLAUDE.md § Tech stack: `nltk` + `scikit-learn` + `scipy` + `numpy` + `pandas<3` (held there by `sotu`'s own `pandas<3.0` pin) + `matplotlib` + `seaborn` + `scikit-misc` + `wordcloud` + `networkx` + `statsmodels` + `liwc` + `sotu`. **spaCy was dropped**: never shipped, never imported by any notebook, and NLTK suits a course that teaches tokenising, stopwords and stemming as separate visible steps.
+- [x] **Python library stack** — locked 2026-05-21, revised 2026-07-28. See CLAUDE.md § Tech stack: `nltk` + `scikit-learn` + `scipy` + `numpy` + `pandas` 3.x (the `sotu` cap was lifted in 0.1.1, 2026-07-28) + `matplotlib` + `seaborn` + `scikit-misc` + `wordcloud` + `networkx` + `statsmodels` + `liwc` + `sotu`. **spaCy was dropped**: never shipped, never imported by any notebook, and NLTK suits a course that teaches tokenising, stopwords and stemming as separate visible steps.
 - [?] **Within-year release versioning scheme** — major version is the calendar year (`v2026.x`, `v2027.x`); minor/patch format is open (e.g. `v2026.0.1` semver-ish, or `v2026-w1` week-of-instruction).
 - [?] **Mark ↔ Brian review cadence** — does each translated session need explicit sign-off before slides deploy?
 - [?] **Audience prior Python knowledge** — current assumption is "none". Revise if cohort intake changes.
