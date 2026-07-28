@@ -1,10 +1,16 @@
 [project]
-name = "2026-winterschool"
+name = "corpusanalysis"
 version = "0.1.0"
-description = "Add your description here"
+description = "DH-Oz Corpus Analysis Masterclass — Python/Jupyter lessons (2026 edition)."
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = [
-    "jupyter>=1.1.1",
-    "jupyterlab-rise>=0.43.1",
+
+# Runtime dependencies live in requirements.txt (the single source); environment.yml
+# installs from it. This file holds only project metadata and instructor build tooling.
+
+[dependency-groups]
+dev = [
+    "python-pptx>=1.0",
+    "pre-commit>=4.0",
+    "pytest>=8.0",
 ]

@@ -1,0 +1,21 @@
+# Corpus Analysis Masterclass — the one dependency list.
+# Install into a fresh Python 3.14 environment (Miniconda supplies only Python):
+#     pip install -r requirements.txt
+# environment.yml installs from this same file, so there is nothing to keep in sync.
+
+jupyter==1.1.1
+
+# Data and plotting
+numpy==2.4.4
+pandas==2.3.3
+matplotlib==3.10.9
+scipy==1.17.1
+scikit-learn==1.8.0
+statsmodels==0.14.6
+networkx==3.6.1
+wordcloud==1.9.6
+
+# Text and corpus
+nltk==3.9.4
+liwc==0.5.0
+sotu==0.1.0
