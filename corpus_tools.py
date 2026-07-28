@@ -358,7 +358,7 @@ def dispersion_plot(labels, lengths, positions, title, mark_size=100, ax=None):
         plt.show()
 
 
-def loess_band(x, y, ax=None, points=200, alpha=0.05, color="crimson", label=None):
+def loess_band(x, y, ax=None, points=200, alpha=0.05, color="black", label=None):
     """Fit a loess smoother and return its curve with a confidence band.
 
     x and y are equal-length sequences. The curve is evaluated at `points`
@@ -392,8 +392,11 @@ def loess_band(x, y, ax=None, points=200, alpha=0.05, color="crimson", label=Non
     lower = numpy.asarray(band.lower, dtype=float)
     upper = numpy.asarray(band.upper, dtype=float)
 
+    # Black by default, with a grey band. The curve is an annotation over the data
+    # rather than another series, and the categorical palettes seaborn reaches for
+    # use every colour except black, so anything else risks reading as a category.
     if ax is not None:
         ax.plot(grid, fitted, color=color, linewidth=2, label=label, zorder=3)
-        ax.fill_between(grid, lower, upper, color=color, alpha=0.2, zorder=2)
+        ax.fill_between(grid, lower, upper, color=color, alpha=0.15, zorder=2)
 
     return grid, fitted, lower, upper
