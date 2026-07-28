@@ -5,8 +5,32 @@ description = "DH-Oz Corpus Analysis Masterclass — Python/Jupyter lessons (202
 readme = "README.md"
 requires-python = ">=3.14"
 
-# Runtime dependencies live in requirements.txt (the single source); environment.yml
-# installs from it. This file holds only project metadata and instructor build tooling.
+# This is the single source for runtime dependencies. requirements.txt is generated
+# from the list below by tools/sync_requirements.py, and environment.yml installs from
+# requirements.txt, so a change here reaches the conda path and the Colab path without
+# anything being edited by hand. Add a dependency here and nowhere else.
+dependencies = [
+    # Notebook environment
+    "jupyter==1.1.1",
+    # Data and plotting
+    "numpy==2.4.4",
+    "pandas==2.3.3",
+    "matplotlib==3.10.9",
+    "seaborn==0.13.2",
+    "scipy==1.17.1",
+    "scikit-learn==1.8.0",
+    "statsmodels==0.14.6",
+    "networkx==3.6.1",
+    "wordcloud==1.9.6",
+    # Loess smoothing with confidence bands. statsmodels' lowess returns no standard
+    # errors, so it cannot draw a band; scikit-misc wraps the loess code R's
+    # stats::loess() calls, which does.
+    "scikit-misc==0.5.2",
+    # Text and corpus
+    "nltk==3.9.4",
+    "liwc==0.5.0",
+    "sotu==0.1.0",
+]
 
 [dependency-groups]
 dev = [

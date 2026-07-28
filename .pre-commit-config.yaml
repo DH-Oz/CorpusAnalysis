@@ -1,0 +1,36 @@
+# Keeps the generated files in step with their sources, so nothing drifts.
+#
+# pyproject.toml  --sync_requirements-->  requirements.txt  --(environment.yml reads it)
+# corpus_tools.py --sync_corpus_tools-->  day-N/corpus_tools.py
+#
+# Both hooks rewrite the generated file rather than only complaining about it. A
+# commit that leaves something stale therefore fails once, with the fix already
+# written to disk, and succeeds as soon as you `git add` the corrected file.
+#
+# Install once per checkout:
+#     uv run pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: sync-requirements
+        name: regenerate requirements.txt from pyproject.toml
+        entry: uv run python tools/sync_requirements.py
+        language: system
+        pass_filenames: false
+        files: ^(pyproject\.toml|requirements\.txt)$
+
+      - id: sync-corpus-tools
+        name: copy corpus_tools.py beside each day-N notebook
+        entry: uv run python tools/sync_corpus_tools.py
+        language: system
+        pass_filenames: false
+        files: ^corpus_tools\.py$
+
+      - id: no-liwc-dictionary
+        name: refuse to commit a loose LIWC dictionary
+        entry: >-
+          bash -c 'if git diff --cached --name-only | grep -iE "liwc.*\.dic$"; then
+          echo "Refusing: a LIWC dictionary is staged. It ships encrypted in
+          resources.zip, never loose."; exit 1; fi'
+        language: system
+        pass_filenames: false
