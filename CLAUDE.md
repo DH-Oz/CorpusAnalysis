@@ -35,8 +35,11 @@ Local working directory for the `DH-Oz/CorpusAnalysis` evergreen repo — a livi
   - `nltk` — tokenisation + stopwords + `nltk.download("state_union" | "punkt" | "stopwords" | …)` data
   - `scikit-learn` — `CountVectorizer` for document-feature matrices; `LatentDirichletAllocation` for topic modelling
   - `scipy` — `scipy.cluster.hierarchy` (dendrograms), `scipy.spatial.distance` (Euclidean / cosine / Manhattan / …)
-  - `numpy`, `pandas<3` (pandas constrained because `sotu` requires <3.0)
+  - `numpy`, `pandas<3`. The cap comes from `sotu`, which is **our own package**, so it is a decision of ours rather than an external constraint. All five code-along notebooks were run under pandas 3.0.3 on 2026-07-28: 131 outputs, 2 differences, one of them an improvement. Lifting it is a `sotu` release away and is deliberately held until after the 2026 delivery.
   - `matplotlib` — plots + ColorBrewer-named colormaps via `matplotlib.colormaps[name]`
+  - `seaborn` — the statistical layer over matplotlib; `scatterplot(hue=...)` colours by a column and builds the legend, which is most of what the course asks a plot to do
+  - `scikit-misc` — `skmisc.loess`, the only loess in Python carrying standard errors, so `corpus_tools.loess_band` can draw a confidence band. `statsmodels`' lowess cannot.
+  - `plotly` — the interactive twin of the static scatter in notebook 1. The wheel installs a JupyterLab **mime renderer** into `<prefix>/share/jupyter/labextensions/`, so hover and legend filtering work offline with no second install step, and plotly detects Colab through `COLAB_NOTEBOOK_ID` on its own. Output is stored as `application/vnd.plotly.v1+json` (~18 KB per figure), not as an inlined copy of plotly.js.
   - `wordcloud` — word-cloud rendering
   - `networkx` — collocation networks (Day 2 PM)
   - **No spaCy.** It was in the 2026-05-21 lock and was dropped: the course teaches tokenising, stopword filtering and stemming as separate visible steps, which is what NLTK gives, whereas spaCy's `nlp(text)` does several at once and has no stemmer at all. Adding it would also mean per-language statistical models to download and verify on Day 1, for capability the lessons never use.
@@ -79,7 +82,7 @@ Local working directory currently:
 ├── CLAUDE.md                                # this file
 ├── README.md                                # public-facing course intro
 ├── pyproject.toml                           # SINGLE SOURCE for deps, Python 3.14, taught to students; uv reads it directly
-├── uv.lock                                  # uv lockfile (tracked for reproducibility)
+├── uv.lock                                  # LOCAL ONLY — gitignored. Students reproduce from requirements.txt, so the lock is an instructor-side convenience uv regenerates on demand.
 ├── environment.yml                          # conda-side env spec; pins python=3.14 and pip-installs `-r requirements.txt`
 └── requirements.txt                         # GENERATED from pyproject.toml by tools/sync_requirements.py; never hand-edited
 ```
