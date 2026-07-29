@@ -26,7 +26,10 @@ echo   - no administrator password is needed
 echo   - it is not registered as your system Python, so other software is unaffected
 echo   - to undo it later, delete that one folder
 echo.
+set "ANSWER="
 set /p "ANSWER=Install Miniforge now? [y/N] "
+REM Strip spaces, so a stray space either side of the answer still counts.
+set "ANSWER=%ANSWER: =%"
 if /i not "%ANSWER%"=="y" if /i not "%ANSWER%"=="yes" (
     echo.
     echo Nothing was installed.
