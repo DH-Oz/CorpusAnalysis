@@ -56,20 +56,19 @@ each split PDF in `2025-slides/`.
 > - `environment.yml` lists everything this course needs. Every student's `corpusanalysis` comes out identical.
 > - You can delete and recreate it any time. Nothing else on your machine changes.
 >
-> *Spoken:* R students `install.packages` globally, so this idea is new. It sets up the `conda activate corpusanalysis` line on slide 24.
+> *Spoken:* R students `install.packages` globally, so this idea is new. It explains what the launcher on slide 24 is building for them.
 
-> **Slide 24 — Setting up and starting Jupyter**
+> **Slide 24 — Setting up and starting Jupyter** *(rewritten 2026-07-29: the terminal route is no longer the taught path)*
 > 1. Unzip the course zip onto your Desktop.
-> 2. Open a terminal.
->    - Mac: ⌘ + Space, then type `Terminal`.
->    - Windows: open Anaconda Prompt from the Start menu.
-> 3. Move into the folder. Type `cd `, then drag the folder onto the terminal. Press Enter.
-> 4. The first time, build the environment: `conda env create -f environment.yml`
-> 5. Activate it: `conda activate corpusanalysis`
-> 6. Start Jupyter: `jupyter lab`
-> 7. In the Day 1 notebook, type `print("Hello, world!")` and press Shift + Enter.
+> 2. Open the folder and double-click one file:
+>    - Windows: `start-jupyter.bat`
+>    - Mac: `start-jupyter.command`
+> 3. The first time, it asks whether to install Miniforge. Say yes. It goes in one folder in your home directory and needs no admin password.
+> 4. It then builds the course environment, which takes a few minutes, and opens JupyterLab in your browser.
+> 5. Leave the black window open while you work.
+> 6. In the Day 1 notebook, type `print("Hello, world!")` and press Shift + Enter.
 >
-> *Spoken:* Windows must use Anaconda Prompt, not plain cmd. Dragging the folder pastes the path, so nobody types one. After the first run it is just steps 2, 5, 6. Split 24a/24b if one slide runs dense.
+> *Spoken:* the first Mac launch may need right-click → Open, because macOS blocks files that arrived from the internet. There is no `conda activate` to remember, which is the step that used to break people. Anyone who wants the terminal route has it in the README.
 
 A `0-setup-check.ipynb` smoke test then runs before notebook 1.
 
