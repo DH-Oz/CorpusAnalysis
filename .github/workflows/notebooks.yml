@@ -58,16 +58,19 @@ jobs:
         #
         # The extraction itself is therefore NOT covered here. Covering it would mean
         # putting the password in this file, and the password never goes in the repo.
-        run: mv resources.zip /tmp/resources.zip
+        run: mv resources.zip ../resources.zip.hidden
 
       - name: Execute every notebook and fail on any error
         run: |
-          mkdir -p /tmp/executed
+          # A workspace-relative directory, because Git Bash rewrites /tmp when it
+          # hands the path to nbconvert while Python's pathlib does not, so the two
+          # halves of this job disagreed about where the notebooks were on Windows.
+          mkdir -p executed
           status=0
           for notebook in [0-9]*.ipynb; do
             echo "::group::$notebook"
             if uv run jupyter nbconvert --to notebook --execute "$notebook" \
-                 --output-dir /tmp/executed --output "$notebook"; then
+                 --output-dir executed --output "$notebook"; then
               echo "$notebook ran clean"
             else
               echo "::error file=$notebook::$notebook failed to execute"
@@ -78,35 +81,14 @@ jobs:
           exit $status
 
       - name: Confirm the figures were actually produced
-        # A notebook can exit zero while silently drawing nothing, so count the images
-        # rather than trusting the exit code.
-        run: |
-          uv run python - <<'PY'
-          import json, pathlib, sys
-          figures = 0
-          for path in sorted(pathlib.Path('/tmp/executed').glob('*.ipynb')):
-              nb = json.loads(path.read_text())
-              count = sum(
-                  1
-                  for cell in nb['cells']
-                  for output in cell.get('outputs', [])
-                  if 'image/png' in output.get('data', {})
-              )
-              print(f'  {path.name}: {count} figures')
-              figures += count
-          print(f'{figures} figures in total')
-          # With everything present the course draws 51. CI hides resources.zip, so the
-          # six LIWC emotion plots are skipped and 45 is the expected number here.
-          # The floor is lower than that so a single reordered cell is not a failure,
-          # while a subsystem quietly rendering nothing still is.
-          if figures < 40:
-              sys.exit(f'Only {figures} figures, expected 45 with LIWC skipped.')
-          PY
+        # Distinguishes "the notebooks drew nothing" from "this check looked in the
+        # wrong place", which reported an identical zero on Windows before the fix.
+        run: uv run python tools/check_executed_figures.py executed --min-figures 40
 
       - name: Keep the executed notebooks for inspection
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: executed-notebooks-${{ matrix.os }}
-          path: /tmp/executed/
+          path: executed/
           retention-days: 7

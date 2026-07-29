@@ -73,3 +73,6 @@ day-*/*.qa.md
 # Figures students generate by running the notebooks
 sotu-dendrogram.pdf
 nuclear-decades.pdf
+
+# Executed notebooks written by the notebooks CI workflow
+executed/
