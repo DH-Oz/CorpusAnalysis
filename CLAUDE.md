@@ -39,7 +39,7 @@ Local working directory for the `DH-Oz/CorpusAnalysis` evergreen repo — a livi
   - `matplotlib` — plots + ColorBrewer-named colormaps via `matplotlib.colormaps[name]`
   - `seaborn` — the statistical layer over matplotlib; `scatterplot(hue=...)` colours by a column and builds the legend, which is most of what the course asks a plot to do
   - `scikit-misc` — `skmisc.loess`, the only loess in Python carrying standard errors, so `corpus_tools.loess_band` can draw a confidence band. `statsmodels`' lowess cannot.
-  - `plotly` — the interactive twin of the static scatter in notebook 1. The wheel installs a JupyterLab **mime renderer** into `<prefix>/share/jupyter/labextensions/`, so hover and legend filtering work offline with no second install step, and plotly detects Colab through `COLAB_NOTEBOOK_ID` on its own. Output is stored as `application/vnd.plotly.v1+json` (~18 KB per figure), not as an inlined copy of plotly.js.
+  - `plotly` — the interactive twin of the static scatter in notebook 1a. The wheel installs a JupyterLab **mime renderer** into `<prefix>/share/jupyter/labextensions/`, so hover and legend filtering work offline with no second install step, and plotly detects Colab through `COLAB_NOTEBOOK_ID` on its own. Output is stored as `application/vnd.plotly.v1+json` (~18 KB per figure), not as an inlined copy of plotly.js.
   - `wordcloud` — word-cloud rendering
   - `networkx` — collocation networks (Day 2 PM)
   - **No spaCy.** It was in the 2026-05-21 lock and was dropped: the course teaches tokenising, stopword filtering and stemming as separate visible steps, which is what NLTK gives, whereas spaCy's `nlp(text)` does several at once and has no stemmer at all. Adding it would also mean per-language statistical models to download and verify on Day 1, for capability the lessons never use.
@@ -50,7 +50,7 @@ Local working directory for the `DH-Oz/CorpusAnalysis` evergreen repo — a livi
 
 These live in project-local notes under `.notes/` at the repo root. Read `.notes/README.md` and every linked file before authoring lesson content. (Migrated 2026-05-27 from the deprecated `~/.claude/projects/.../memory/` scheme.)
 
-- **`no-unearned-python-idioms`** — every Python construct shown to learners must already have been explicitly taught. No comprehensions / f-string format specs / `with` blocks / type hints / etc. for elegance. Verbose-and-explicit beats clever.
+- **`no-unearned-python-idioms`** — every Python construct shown to learners must already have been explicitly taught. No comprehensions / f-string format specs / `with` blocks / type hints / etc. for elegance. Verbose-and-explicit beats clever. Enforced by `tools/check_taught_idioms.py`; the note carries what counts as a gloss.
 - **`interjection-pedagogy`** — leave structural room in lessons for a second voice and Brian's live interjections over Mark's conceptual beats. Don't pack every minute; don't write as if one voice owns the lesson.
 - **`no-git-for-students`** — no `git clone`, `git pull`, fork or branch references anywhere in student-facing material. Distribution is the release zip.
 - **`liwc-dictionary-handling`** — the test is who wrote the dictionary. Dictionaries Brian and Mark built (`nietzsche.dic`, `macdvirtue.dic`, `nuke.dic`, and any they write later) are theirs to give away, so they ship in the repo as loose unencrypted files under CC-BY-NC 4.0, and people using them is the whole point. A third-party licensed dictionary is not ours to redistribute, so a loose `liwcdict.dic` never sits unencrypted in the repo, in any language, and `.gitignore` keeps it out. Distribution is set out in `.notes/feedback_liwc-dictionary-handling.md`.
@@ -122,9 +122,39 @@ uv run python tools/render_palettes_reference.py
 # Run a notebook headless to verify it executes cleanly
 uv run jupyter nbconvert --to notebook --execute day-1/D1-PM-wordcloud-hclust.ipynb --output /tmp/check.ipynb
 
-# Build a release zip (sketch — to be implemented as a CI workflow)
-# Excludes 2025-WinterSchool/, 2025-slides/, slides PDFs, carpentriesCollabLessonTraining.html, LIWC dicts
+# Re-run the code-along notebooks and write the outputs back into them, which is
+# what the committed copies carry. Drop --all to run only what changed.
+uv run python tools/preflight.py --inplace --all
+
+# Assert the committed notebooks are each one clean top-to-bottom run.
+uv run python tools/check_outputs.py
+
+# Assert every Python construct is explained before a learner meets it.
+uv run python tools/check_taught_idioms.py
+
+# Build the student release zip locally. CI does this on a v* tag. See ADR 3.
+uv run python tools/build_release.py --version v2026.1 --out dist
 ```
+
+### Standing decisions live in `docs/decisions/`
+
+Rationale and evidence belong in an ADR, not in this file. What matters here is what
+to do; why it is that way is one link away.
+
+- **[ADR 1](docs/decisions/0001-notebooks-ship-with-their-outputs.md) — notebooks
+  carry their outputs.** The committed copies store one clean top-to-bottom run and
+  ship that way, as answer keys; students type into a notebook they create
+  themselves. **Re-running a notebook after editing it is part of editing it**,
+  because `tools/notebook_cells.py` drops outputs when it replaces a cell. Notebook 2
+  is executed with `dictionaries/liwcdict.dic` unpacked.
+- **[ADR 2](docs/decisions/0002-3b-models-paragraphs-not-books.md) — 3b runs its
+  topic model twice on purpose.** The book-level run is meant to fail. It reads as
+  redundancy worth tidying; it is not. See
+  `.notes/project_3b-book-topic-model-is-deliberate.md` before touching it.
+- **[ADR 3](docs/decisions/0003-release-bundle-is-an-allowlist.md) — the release zip
+  is an allowlist, verified after writing.** Tag `v2026.x` and
+  `.github/workflows/release.yml` builds and attaches it. A new student-facing file
+  must be added to the allowlist in `tools/build_release.py` or it will not ship.
 
 ### Slides are not built from notebooks (decided 2026-07-29)
 
@@ -183,8 +213,8 @@ replace_cell("day-1/D1-AM-intro.ipynb", 18, ("slide",
 
 ## Open / deferred decisions
 
-These are not blockers but should be locked as work progresses; update this CLAUDE.md when each is settled.
+These are not blockers but should be locked as work progresses. When one is settled, write it up as an ADR in `docs/decisions/` and leave this file a pointer.
 
 1. **Within-year release versioning scheme** — major version is the calendar year (`v2026.x`, `v2027.x`); minor/patch format is open (e.g. `v2026.0.1` semver-ish, or `v2026-w1` week-of-instruction).
-2. **Mark ↔ Brian review cadence** for translated notebooks before slides deploy.
-3. **CI workflow** for slide builds and release-zip generation.
+
+**Settled 2026-07-29, from the session transcripts: Mark reviews the code-along notebooks first, and gets the slides only once he is happy with them.** "I want him to start with the codealong, and once he's happy with that, give him slides. That gives us time to work with them." He reviews both artefacts, not slides alone: "Mark will review both the slides and the new jupyter notebooks for code along. He will do both." He works from a running Jupyter rather than a static render, so that he can load his own LIWC dictionary and confirm the LIWC-dependent cells actually execute.
