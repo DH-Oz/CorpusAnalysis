@@ -1,0 +1,79 @@
+name: notebooks
+
+# Every code-along notebook must execute top to bottom with no errors, because a
+# student runs them exactly that way with an instructor watching.
+
+on:
+  push:
+    paths:
+      - "*.ipynb"
+      - "corpus_tools.py"
+      - "pyproject.toml"
+      - "requirements.txt"
+      - "dictionaries/**"
+      - "nietzsche/**"
+      - ".github/workflows/notebooks.yml"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install the project
+        run: uv sync
+
+      - name: Execute every notebook and fail on any error
+        run: |
+          mkdir -p /tmp/executed
+          status=0
+          for notebook in [0-9]*.ipynb; do
+            echo "::group::$notebook"
+            if uv run jupyter nbconvert --to notebook --execute "$notebook" \
+                 --output-dir /tmp/executed --output "$notebook"; then
+              echo "$notebook ran clean"
+            else
+              echo "::error file=$notebook::$notebook failed to execute"
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit $status
+
+      - name: Confirm the figures were actually produced
+        # A notebook can exit zero while silently drawing nothing, so count the images
+        # rather than trusting the exit code.
+        run: |
+          uv run python - <<'PY'
+          import json, pathlib, sys
+          figures = 0
+          for path in sorted(pathlib.Path('/tmp/executed').glob('*.ipynb')):
+              nb = json.loads(path.read_text())
+              count = sum(
+                  1
+                  for cell in nb['cells']
+                  for output in cell.get('outputs', [])
+                  if 'image/png' in output.get('data', {})
+              )
+              print(f'  {path.name}: {count} figures')
+              figures += count
+          print(f'{figures} figures in total')
+          # The course drew 51 on 2026-07-29. A large drop means plots stopped rendering.
+          if figures < 45:
+              sys.exit(f'Only {figures} figures, expected around 51.')
+          PY
+
+      - name: Keep the executed notebooks for inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: executed-notebooks
+          path: /tmp/executed/
+          retention-days: 7

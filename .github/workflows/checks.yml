@@ -1,0 +1,40 @@
+name: checks
+
+# The fast gate. Everything here runs in under a couple of minutes, so it can run on
+# every push without anyone learning to ignore it.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install the project
+        run: uv sync
+
+      - name: Unit tests
+        run: uv run pytest -q
+
+      - name: requirements.txt matches pyproject.toml
+        # requirements.txt is generated. If someone hand-edits it, or edits pyproject
+        # without regenerating, students install a different set from the one we test.
+        run: uv run python tools/sync_requirements.py --check
+
+      - name: Every dependency ships a prebuilt wheel
+        # Half the room is on a locked-down machine with no compiler. A dependency that
+        # has to build from source turns into an Xcode prompt on macOS, mid-workshop.
+        run: uv run python tools/check_wheels.py
+
+      - name: Notebooks explain in markdown, not in comment blocks
+        # The convention from .notes/feedback_markdown-cells-over-code-comments.md: a
+        # multi-line comment preamble belongs above the cell as rendered prose.
+        run: uv run python tools/check_markdown_convention.py

@@ -1,0 +1,110 @@
+name: student-path
+
+# What a student actually does: download the folder, double-click one file, and end
+# up in JupyterLab. Nothing else in CI covers that, because everything else starts
+# from a working uv environment the student will never have.
+#
+# The launchers set COURSE_LAUNCHER_SELFTEST here so they check JupyterLab runs and
+# then exit, instead of leaving a server up until the job times out.
+
+on:
+  push:
+    paths:
+      - "start-jupyter.command"
+      - "start-jupyter.bat"
+      - "environment.yml"
+      - "requirements.txt"
+      - ".github/workflows/student-path.yml"
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Weekly, because this path breaks from the outside. Miniforge moves, conda-forge
+    # drops a Python build, a wheel is yanked. None of that shows up in a diff.
+    - cron: "0 17 * * 0"
+
+jobs:
+  from-nothing:
+    # The hardest case and the one most like a student laptop: no conda anywhere.
+    name: install from nothing (no conda on the machine)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container: debian:stable-slim
+    steps:
+      - name: Tools the base image lacks
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq curl ca-certificates git
+
+      - uses: actions/checkout@v5
+
+      - name: Confirm the machine really has no conda
+        run: |
+          if command -v conda >/dev/null 2>&1; then
+            echo "This image already has conda, so the test proves nothing."
+            exit 1
+          fi
+          echo "No conda present, which is the case we want to test."
+
+      - name: Decline the install, and check nothing was installed
+        run: |
+          chmod +x start-jupyter.command
+          echo "n" | ./start-jupyter.command > decline.log 2>&1 || true
+          grep -q "Nothing was installed" decline.log
+          test ! -d "$HOME/miniforge3"
+          echo "Declining leaves the machine untouched."
+
+      - name: Accept, install Miniforge, build the environment, reach JupyterLab
+        env:
+          COURSE_LAUNCHER_SELFTEST: "1"
+        run: |
+          echo "y" | ./start-jupyter.command
+          test -d "$HOME/miniforge3"
+
+      - name: The install stayed in userland and left the shell alone
+        run: |
+          test -d "$HOME/miniforge3" || { echo "Miniforge is not in HOME"; exit 1; }
+          for profile in "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile" "$HOME/.zshrc"; do
+            if [ -f "$profile" ] && grep -q "conda initialize" "$profile"; then
+              echo "$profile was modified, which the launcher promised not to do."
+              exit 1
+            fi
+          done
+          echo "One folder added, no shell profile touched."
+
+  native:
+    # The platforms students are actually on. GitHub's runners keep conda somewhere the
+    # launcher does not look, so these also exercise the install path, on real macOS
+    # and real Windows rather than in a container.
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            label: macOS (Apple Silicon)
+            launcher: bash
+          - os: macos-15-intel
+            label: macOS (Intel)
+            launcher: bash
+          - os: windows-latest
+            label: Windows
+            launcher: batch
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Run the launcher
+        if: matrix.launcher == 'bash'
+        env:
+          COURSE_LAUNCHER_SELFTEST: "1"
+        run: |
+          chmod +x start-jupyter.command
+          echo "y" | ./start-jupyter.command
+
+      - name: Run the launcher
+        if: matrix.launcher == 'batch'
+        shell: cmd
+        env:
+          COURSE_LAUNCHER_SELFTEST: "1"
+        run: echo y | start-jupyter.bat
