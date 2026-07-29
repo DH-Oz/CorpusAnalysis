@@ -348,3 +348,64 @@ def test_loess_band_draws_into_a_given_axes_without_opening_a_figure():
     assert len(axes.lines) >= 1
     assert any("FillBetween" in type(c).__name__ for c in axes.collections)
     plt.close("all")
+
+
+# --- load_token_parser: vendored from liwc-python, with the encoding named ---
+#
+# The point of vendoring rather than reimplementing is that the difference from
+# upstream stays auditable. These tests hold that line: the first checks we agree
+# with the library on a file where encoding cannot matter, and the rest pin the
+# two places we deliberately differ.
+
+
+def test_vendored_parser_agrees_with_the_library_on_an_ascii_dictionary(tmp_path):
+    """The equivalence that makes 'vendored' a true claim rather than a hope."""
+    import liwc.dic
+
+    from corpus_tools import read_dic_utf8
+
+    path = write_dic(tmp_path, TWO_CATEGORY_DIC)
+    theirs_lexicon, theirs_names = liwc.dic.read_dic(path)
+    ours_lexicon, ours_names = read_dic_utf8(path)
+    assert ours_lexicon == theirs_lexicon
+    assert ours_names == theirs_names
+
+
+def test_the_dictionary_is_read_as_utf8_whatever_the_machine_prefers(tmp_path):
+    """The whole reason this exists. Windows resolves a bare open() to cp1252."""
+    from corpus_tools import read_dic_utf8
+
+    path = write_dic(
+        tmp_path,
+        "%\n1\tmoral\n%\nniederträch*\t1\ngut\t1\n",
+    )
+    lexicon, names = read_dic_utf8(path)
+    assert "niederträch*" in lexicon
+    assert names == ["moral"]
+
+
+def test_an_unknown_category_id_is_reported_not_silently_dropped(tmp_path):
+    """Upstream's behaviour, kept deliberately.
+
+    A term pointing at a category the header never declared is a broken
+    dictionary. Students write their own in the custom-dictionary session, and a
+    term that silently counts toward nothing is the same failure mode as the
+    cp1252 bug this function exists to fix.
+    """
+    import pytest
+
+    from corpus_tools import read_dic_utf8
+
+    path = write_dic(tmp_path, "%\n1\tvirtue\n%\nbrave\t1\nodd\t9\n")
+    with pytest.raises(KeyError):
+        read_dic_utf8(path)
+
+
+def test_a_trailing_blank_line_does_not_become_a_lexicon_entry(tmp_path):
+    """Our one deviation from upstream, which would store an empty pattern."""
+    from corpus_tools import read_dic_utf8
+
+    path = write_dic(tmp_path, TWO_CATEGORY_DIC + "\n\n")
+    lexicon, _ = read_dic_utf8(path)
+    assert "" not in lexicon
+    assert set(lexicon) == {"brave", "honest", "greed*"}

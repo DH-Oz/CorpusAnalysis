@@ -26,9 +26,9 @@ left unrounded, matching the R function.
 
 The category matching is done by the `liwc` library, which handles the
 trailing-'*' wildcard. We add the per-document normalisation that R's liwcalike
-performs, and we read the dictionary file ourselves, as UTF-8. See
-load_token_parser for why: the library's own reader follows the machine's locale
-encoding, which silently breaks every accented term on a Windows machine.
+performs, and we read the dictionary file ourselves, as UTF-8. See read_dic_utf8
+for why: the library's own reader follows the machine's locale encoding, which
+silently breaks every accented term on a Windows machine.
 
 This module also provides comparison_cloud, an R-style comparison word cloud
 (R's textplot_wordcloud(comparison = TRUE)), built on the same wordcloud library.
@@ -52,62 +52,107 @@ import wordcloud
 from skmisc.loess import loess
 
 
+# ---------------------------------------------------------------------------
+# The next three functions are vendored from liwc-python 0.5.0
+# (https://github.com/chbrown/liwc-python), whose reader is correct apart from
+# the encoding. Copying it, rather than reimplementing it, keeps the difference
+# from upstream small enough to audit by eye: measured against the installed
+# library, six executable lines differ, two of which are only the parameter
+# rename from filepath to dictionary_path. The rest are the two changes marked
+# CHANGED below. test_corpus_tools.py holds that equivalence.
+#
+#     Copyright © 2012-2019 Christopher Brown <io@henrian.com>
+#
+#     MIT License
+#
+#     Permission is hereby granted, free of charge, to any person obtaining a
+#     copy of this software and associated documentation files (the
+#     "Software"), to deal in the Software without restriction, including
+#     without limitation the rights to use, copy, modify, merge, publish,
+#     distribute, sublicense, and/or sell copies of the Software, and to permit
+#     persons to whom the Software is furnished to do so, subject to the
+#     following conditions:
+#
+#     The above copyright notice and this permission notice shall be included
+#     in all copies or substantial portions of the Software.
+#
+#     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+#     OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+#     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+#     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+#     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+#     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# ---------------------------------------------------------------------------
+
+
+def _parse_categories(lines):
+    """Read (category_id, category_name) pairs from the categories section."""
+    for line in lines:
+        line = line.strip()
+        if line == "%":
+            return
+        # ignore non-matching groups of categories
+        if "\t" in line:
+            category_id, category_name = line.split("\t", 1)
+            yield category_id, category_name
+
+
+def _parse_lexicon(lines, category_mapping):
+    """Read (match_expression, category_names) pairs from the lexicon section."""
+    for line in lines:
+        line = line.strip()
+        if not line:
+            # CHANGED: upstream stores an empty pattern for a blank line, which a
+            # student dictionary ending in a newline would produce.
+            continue
+        parts = line.split("\t")
+        yield parts[0], [category_mapping[category_id] for category_id in parts[1:]]
+
+
+def read_dic_utf8(dictionary_path):
+    """Read a LIWC-format .dic as UTF-8, returning (lexicon, category_names).
+
+    Use this in place of liwc.dic.read_dic. The library opens the file with no
+    encoding, so Python falls back to whatever the machine's locale says. On
+    Windows that is usually cp1252, which reads the UTF-8 bytes of
+    'niederträch*' as 'niedertrÃ¤ch*'. Nothing raises. The pattern simply stops
+    matching, and every German category carrying an umlaut silently counts zero.
+
+    An id in the lexicon that the header never declared raises KeyError, which is
+    upstream's behaviour and worth keeping: a term counting toward nothing is the
+    same silent failure this function exists to prevent, and students write their
+    own dictionaries in the custom-dictionary session.
+    """
+    # CHANGED: encoding named, instead of following the machine's locale.
+    with open(dictionary_path, encoding="utf-8") as lines:
+        # read up to first "%" (should be very first line of file)
+        for line in lines:
+            if line.strip() == "%":
+                break
+        # read categories (a mapping from integer string to category name)
+        category_mapping = dict(_parse_categories(lines))
+        # read lexicon (a mapping from matching string to a list of category names)
+        lexicon = dict(_parse_lexicon(lines, category_mapping))
+    return lexicon, list(category_mapping.values())
+
+
 def load_token_parser(dictionary_path):
-    """Read a LIWC-format dictionary as UTF-8 and return liwc's token parser.
+    """Return liwc's token parser over a dictionary read as UTF-8.
 
-    Use this in place of liwc.load_token_parser. The library opens the file with
-    no encoding, so Python falls back to whatever the machine's locale says. On
-    Windows that is usually cp1252, which reads the UTF-8 bytes of 'niederträch*'
-    as 'niedertrÃ¤ch*'. Nothing raises. The pattern simply stops matching, and
-    every German category carrying an umlaut silently counts zero.
-
-    The parsing below is the library's own, with the encoding made explicit. The
-    trie that does the matching is still liwc's, because only the reading is wrong.
+    Use this in place of liwc.load_token_parser. Only the reading was wrong, so
+    the trie that does the matching is still liwc's.
 
     Returns (parse_token, category_names), the same pair the library returns.
     """
-    category_names_by_id = {}
-    lexicon = {}
-
-    with open(dictionary_path, encoding="utf-8") as dictionary_file:
-        lines = dictionary_file.readlines()
-
-    # A .dic file is two sections divided by lines holding only '%'. The first
-    # numbers the categories, the second lists each term and the ids it belongs to.
-    line_index = 0
-    while line_index < len(lines):
-        if lines[line_index].strip() == "%":
-            line_index = line_index + 1
-            break
-        line_index = line_index + 1
-
-    while line_index < len(lines):
-        line = lines[line_index].strip()
-        line_index = line_index + 1
-        if line == "%":
-            break
-        if "\t" in line:
-            category_id, category_name = line.split("\t", 1)
-            category_names_by_id[category_id] = category_name
-
-    while line_index < len(lines):
-        parts = lines[line_index].strip().split("\t")
-        line_index = line_index + 1
-        if not parts[0]:
-            continue
-        categories = []
-        for category_id in parts[1:]:
-            if category_id in category_names_by_id:
-                categories.append(category_names_by_id[category_id])
-        lexicon[parts[0]] = categories
-
+    lexicon, category_names = read_dic_utf8(dictionary_path)
     trie = liwc.trie.build_trie(lexicon)
 
     def parse_token(token):
         for category_name in liwc.trie.search_trie(trie, token):
             yield category_name
 
-    return parse_token, list(category_names_by_id.values())
+    return parse_token, category_names
 
 
 def liwcalike(texts, docnames, dictionary_path, tolower=True, digits=2):
