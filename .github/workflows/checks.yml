@@ -63,6 +63,20 @@ jobs:
         if: matrix.primary
         run: uv run python tools/check_markdown_convention.py
 
+      - name: Notebooks carry the outputs of one clean run
+        # The committed notebooks are read without being run, so their stored
+        # outputs are the thing a reader trusts. They drifted to 2-of-23 executed
+        # before anything checked, because replacing a cell drops its outputs.
+        if: matrix.primary
+        run: uv run python tools/check_outputs.py
+
+      - name: Every Python construct is explained before a learner meets it
+        # .notes/feedback_no-unearned-python-idioms.md, which had nothing enforcing
+        # it until a cell-by-cell read found it broken in four places at once:
+        # .iloc, enumerate, f-string format specs, and three ternaries.
+        if: matrix.primary
+        run: uv run python tools/check_taught_idioms.py
+
       - name: One plot type, one library
         # A student should not have to learn two APIs to read the same kind of
         # picture twice. Scatters are seaborn; networks, clouds and dispersion
