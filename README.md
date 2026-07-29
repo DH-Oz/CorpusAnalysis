@@ -24,56 +24,46 @@ Materials are distributed as a **release zip** — no git knowledge required.
 1. Visit the course site: https://DH-Oz.github.io/CorpusAnalysis (live after first deploy).
 2. Download the latest **release zip** linked from the landing page.
 3. Unzip it somewhere convenient. Everything the course needs sits inside that one folder.
-4. Set up the environment, either locally with conda (recommended, see below) or in [Google Colab](https://colab.research.google.com) if your machine is locked down.
+4. Start the course by double-clicking one file, as below. If your machine is locked down and that is not possible, use [Google Colab](https://colab.research.google.com) instead.
 
-## Local install (recommended)
+## Starting the course
 
-Do all of this before the course starts.
+Do this once before the course starts, so that a slow download does not eat into the first session.
 
-1. Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://www.anaconda.com/download). Miniconda is the smaller download and is all the course needs. Both install into your user folder, so you do not need admin rights.
-2. Open a terminal. On Windows, use the **Anaconda Prompt** that the installer adds to your Start menu. If the terminal cannot find `conda`, jump to *If the terminal cannot find conda* below, then come back here.
-3. Change into the unzipped course folder:
-   ```
-   cd path/to/the/unzipped/folder
-   ```
-4. Create the course environment. This reads `environment.yml` and installs Python 3.14 along with every library the course uses. It takes several minutes.
-   ```
-   conda env create -f environment.yml
-   ```
-5. Activate the environment. You need this line every time you open a new terminal to work on the course.
-   ```
-   conda activate corpusanalysis
-   ```
-6. Start Jupyter:
-   ```
-   jupyter lab
-   ```
-7. Jupyter opens in your browser showing the course folder. Open `0-setup-check.ipynb` and run every cell. The first cell is slow the first time you run it, sometimes for half a minute, because Python is caching the libraries as it loads them. Later runs take about a second. If every cell runs without an error, your environment is ready.
+Inside the unzipped folder there is a file for your machine:
 
-Step 4 is needed once. On later days you only need steps 2, 3, 5, and 6.
+- **Windows**: `start-jupyter.bat`
+- **macOS and Linux**: `start-jupyter.command`
 
-### If the terminal cannot find conda
+Double-click it. A black window opens and tells you what it is doing. The first run takes several minutes, because it builds the course environment. Every run after that takes a few seconds.
 
-If step 2 gives you `conda: command not found`, or step 5 gives you an error saying your shell is not configured to use `conda activate`, then conda was installed without setting up your shell. You can run that setup yourself.
+When JupyterLab opens in your browser, open `0-setup-check.ipynb` and run every cell. The first cell is slow the first time, sometimes for half a minute, while Python caches the libraries as it loads them. If every cell runs without an error, you are ready.
 
-On Windows, use the **Anaconda Prompt** from the Start menu. The installer configures it for you, so there is nothing else to do.
+Leave the black window open while you work. Closing it stops Jupyter.
 
-On macOS and Linux, check which shell you are using, then run conda's setup for it:
+### The first time on a Mac
+
+macOS blocks files that came from the internet until you confirm you meant to open them. If double-clicking does nothing, or you see a warning about an unidentified developer, **right-click** `start-jupyter.command`, choose **Open**, then click **Open** in the dialog. You only do this once.
+
+### If you have no conda yet
+
+The launcher checks whether you already have conda, which is the tool that builds the course environment. If you do not, it offers to install Miniforge and waits for you to answer.
+
+Saying yes downloads about 60 MB and puts everything in one folder inside your home directory. It needs no administrator password, it does not become your system Python, and it leaves your existing setup alone. To remove it later, delete that one folder. Saying no changes nothing at all.
+
+## If you would rather use the terminal
+
+The launcher exists so nobody has to, but the terminal works and some people prefer it.
 
 ```
-echo $SHELL
-~/miniconda3/bin/conda init zsh
+cd path/to/the/unzipped/folder
+conda env create -f environment.yml
+conda run --no-capture-output -n corpusanalysis jupyter lab
 ```
 
-Use `bash` in place of `zsh` if that is what `echo $SHELL` reported. If you installed Anaconda rather than Miniconda, the folder is `~/anaconda3` instead. The full path matters here, because `conda` is not yet on your PATH.
+The first line is needed once. Note that there is no `conda activate` step: `conda run` does the same job, and it works even when `conda init` has never been run on your machine, which is the usual reason `conda activate` fails.
 
-The setup only takes effect once your shell reads its settings again. Rather than closing the window, reload them in place:
-
-```
-source ~/.zshrc
-```
-
-Use `~/.bash_profile` in place of `~/.zshrc` if `echo $SHELL` reported bash. You will know it worked when your prompt starts with `(base)`. Then carry on from step 3.
+If the terminal cannot find `conda` at all, use the launcher instead. On Windows the **Anaconda Prompt** from the Start menu also works, since the installer configures it for you.
 
 ## Backup: Google Colab
 
