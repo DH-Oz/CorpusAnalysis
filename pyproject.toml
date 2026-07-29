@@ -41,11 +41,9 @@ dependencies = [
 
 [dependency-groups]
 # Instructor-side only. These never reach requirements.txt, so a student install
-# stays as small as it can be. jupyterlab-rise lets an instructor present straight
-# from JupyterLab; the built decks come from tools/render_slides.py either way.
+# stays as small as it can be.
 dev = [
     "python-pptx>=1.0",
     "pre-commit>=4.0",
     "pytest>=8.0",
-    "jupyterlab-rise>=0.43",
 ]

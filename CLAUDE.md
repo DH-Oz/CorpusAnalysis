@@ -27,9 +27,9 @@ Local working directory for the `DH-Oz/CorpusAnalysis` evergreen repo — a livi
   - The dev/instructor side uses **uv**, which reads `pyproject.toml` directly, so `uv run` works with no extra step. Neither instructor runs conda locally; the conda path is what we build *for*, and testing it means a container.
   - Students **double-click one file**: `start-jupyter.bat` on Windows, `start-jupyter.command` on macOS and Linux. It finds conda, offers to install Miniforge into `~/miniforge3` if there is none (opt-in, no admin, no shell-profile changes), builds the environment on first run, then starts JupyterLab. There is deliberately **no `conda activate` step**: `conda run --no-capture-output -n corpusanalysis jupyter lab` does the same job and works even where `conda init` has never run, which was the failure that bit an instructor during preparation. Activation was the hard part, not installation. The terminal route stays in `README.md` for anyone who wants it. Verified end to end on Apple Silicon, Intel macOS, Windows and a bare Debian container by the `student-path` workflow.
   - To add a dependency: edit `pyproject.toml` and nothing else, then `uv run python tools/sync_requirements.py`. The pre-commit hook does it for you if you forget.
-- **Notebooks**: Jupyter `.ipynb` files. Each cell carries Slideshow metadata (Slide / Sub-Slide / Fragment / Skip / Notes).
-- **Slides**: `jupyter nbconvert --to slides notebook.ipynb` → reveal.js HTML for the built/public artefacts (CI + Pages). **RISE** (`jupyterlab-rise`) is in the **dev dependency group**, so instructors get it with `uv sync` and can present interactively from inside JupyterLab. It is deliberately not in the student list, since students never present from the notebook and it would only add install weight. nbconvert remains the canonical build path; RISE is the in-Jupyter live option.
-- **Site**: GitHub Pages hosts a landing page plus the rendered nbconvert slides.
+- **Notebooks**: Jupyter `.ipynb` files. The `day-N/` ones still carry Slideshow metadata from when they were rendered as decks; it is inert now and can be ignored.
+- **Slides**: built by hand in **Google Slides** (decided 2026-07-29). Notebooks are not rendered to slides. See *Slides are not built from notebooks* below for what was removed and what the deck is built from.
+- **Site**: GitHub Pages hosts a landing page and the student download link.
 - **Distribution**: students download a **release zip** from GitHub Releases via a link on the Pages site. No git operations for students. See note `.notes/feedback_no-git-for-students.md`.
 - **Library stack for corpus analysis** (locked 2026-05-21 via Day 1 AM port):
   - `nltk` — tokenisation + stopwords + `nltk.download("state_union" | "punkt" | "stopwords" | …)` data
@@ -56,7 +56,7 @@ These live in project-local notes under `.notes/` at the repo root. Read `.notes
 - **`liwc-dictionary-handling`** — the test is who wrote the dictionary. Dictionaries Brian and Mark built (`nietzsche.dic`, `macdvirtue.dic`, `nuke.dic`, and any they write later) are theirs to give away, so they ship in the repo as loose unencrypted files under CC-BY-NC 4.0, and people using them is the whole point. A third-party licensed dictionary is not ours to redistribute, so a loose `liwcdict.dic` never sits unencrypted in the repo, in any language, and `.gitignore` keeps it out. Distribution is set out in `.notes/feedback_liwc-dictionary-handling.md`.
 - **`non-code-content-is-1-to-1`** — non-code slides (introductions, agenda, epigraphs, paper showcases, image-only slides) match the 2025 source 1:1. Only code-bearing content (R → Python translation, library-stack rewrites) is redesigned. No added headings, captions, or "framing prose" on slides whose 2025 originals were image-only.
 - **`voice-when-authoring-new-prose`** — Mark's 2025 voice is preserved verbatim. His em-dashes stay. His discursive asides stay. His semantic colour cues, fragment-builds, lowercase casual titles all stay. The voice rules apply only when Claude is generating new prose for code-bridge cells. That should be rare. The diseased patterns are sentence structures, not characters. The parenthetical-aside cram. Triplets. Telling-about. Meta-conclusion. Staccato fragments. Unintroduced acronyms. Mechanical punctuation swaps do not fix a structure. Swapping `—` for `;` or `:` or parens leaves the cram intact. Real fixes split into two sentences. Or drop the aside. Or restructure so the second clause is the main clause. Calibrated against the INTS1301 *Bullet Voice* section at `/home/brian/people/Brian/INTS1301/CLAUDE.md`. Full rules and worked examples in `.notes/feedback_voice-when-authoring-new-prose.md`.
-- **`class-based-layout-patterns`** — reusable layout patterns (side-by-side image pairs, two-column bodies, etc.) live in `tools/slides.css` as named classes; cells reference them via HTML wrappers (`<div class="side-by-side">…</div>`). Never use inline `style="..."`, inline `width=`/`height=` attributes, or per-cell ad-hoc CSS.
+- **`class-based-layout-patterns`** — **retired 2026-07-29** along with `tools/slides.css`, which the classes lived in. It governed layout inside rendered decks, and nothing is rendered now. The note stays in `.notes/` as history.
 
 Carpentries pedagogy (`carpentriesCollabLessonTraining.html`) is used as **reference only** — apply principles (explicit learner objectives, prerequisites, keypoints, frequent formative checks) without adopting The Workbench or Incubator infrastructure.
 
@@ -93,10 +93,10 @@ The `2025-slides/` folder is the one exception: it carries per-session PDF subse
 
 ## Distribution model
 
-- **Public site**: GitHub Pages at `DH-Oz.github.io/CorpusAnalysis` (or similar — confirm with the instructor when the repo is created). Hosts landing page + rendered nbconvert slides.
+- **Public site**: GitHub Pages at `DH-Oz.github.io/CorpusAnalysis` (or similar — confirm with the instructor when the repo is created). Hosts the landing page and the student download link.
 - **Student download**: release zip on GitHub Releases, linked from the landing page. Self-contained: notebooks, corpus, dictionaries, and a short README.
 - **Year tracking**: years are carried by **release tags** (`v2026.x`, `v2027.x`, …), not by year-prefixed directories. `main` always holds the current edition's content; previous editions live on as their release tags and zip assets. Within-year versioning scheme is still open (see Open / deferred decisions).
-- **Slides build path**: `jupyter nbconvert --to slides day-N/<notebook>.ipynb`. Long-term this should be a CI workflow (GitHub Actions) that builds slides on push and deploys to Pages.
+- **Slides**: built by hand in Google Slides. There is no slide build path in this repo any more.
 
 ## Licences
 
@@ -108,16 +108,9 @@ The `2025-slides/` folder is the one exception: it carries per-session PDF subse
 ## Commands
 
 ```bash
-# Render a notebook to reveal.js slides + a print-PDF for QA.
-# Executes the notebook in-memory (--execute) so figure outputs (word clouds,
-# dendrograms, plots) are baked into the deck as LIVE Python output, not stale
-# reference PNGs. Injects tools/slides.css and the click-to-reveal/lightbox JS.
-uv run python tools/render_slides.py day-1/D1-AM-intro.ipynb
-
-# Render every day-N notebook whose .slides.pdf is stale or missing.
-# Wired into the Claude Code Stop hook in .claude/settings.local.json so QA
-# renders trigger automatically at the end of any turn that edited a notebook.
-uv run python tools/render_stale.py
+# Regenerate the lecture figures from the code-along notebooks. These land in
+# figures/ (committed) and are what goes into the Google Slides deck.
+uv run python tools/export_figures.py
 
 # Extract images from the local .pptx (instructor-only; .pptx is gitignored).
 uv run python tools/extract_pptx_images.py "Corpus Analysis Masterclass 2025.pptx" day-N/img --slides N N N
@@ -133,27 +126,28 @@ uv run jupyter nbconvert --to notebook --execute day-1/D1-PM-wordcloud-hclust.ip
 # Excludes 2025-WinterSchool/, 2025-slides/, slides PDFs, carpentriesCollabLessonTraining.html, LIWC dicts
 ```
 
-### Per-session content QA (rubric)
+### Slides are not built from notebooks (decided 2026-07-29)
 
-Before marking a session's notebook content "done", run the rubric at `tools/qa-rubric.md` against that notebook. Invoke as: *"Run tools/qa-rubric.md against day-N/<notebook>.ipynb"*. The rubric requires the 2025-slides PDF be read cover-to-cover for that session, classifies every markdown cell as verbatim-2025 / image-only / code-bridge / instructor-note, runs voice rules only against Claude-authored cells, and produces a findings file (`day-N/<notebook>.qa.md`) before any edits.
+The 2026 deck is built by hand in **Google Slides**. The notebooks-to-reveal.js
+route was retired: `render_slides.py`, `render_stale.py`, `slides.css`,
+`qa-rubric.md`, the auto-render Stop hook and the `jupyterlab-rise` dependency
+are all gone, along with the visual-QA and click-to-reveal workflows that only
+existed to serve them.
 
-### Visual QA pipeline (mandatory before marking a section "done")
+What stays, because it is what the Google deck is built *from*:
 
-1. Edit notebook cells.
-2. Auto-render fires at end-of-turn via the Stop hook (or run `uv run python tools/render_stale.py` manually). The render executes the notebook (`--execute`) so live outputs are baked in.
-3. Walk **every PDF page** (not a spot-check) and visually verify: text fits, images render, fragment builds don't overflow, sub-slide stacks navigate sanely, and — for §4-style image-then-code beats — the live Python output is present (not just the heading).
-4. Slides are NOT "done" until step 3 passes. The hook produces a reminder line; act on it.
+- `day-1/` … `day-4/` notebooks and their `img/` folders, now **internal notes
+  and source material for the retrofit**, not deliverables. They are not
+  rendered, not QA'd against a slide, and not shipped to students.
+- `figures/` (committed) — figures harvested from the code-along notebooks by
+  `tools/export_figures.py`. Drop these into slides.
+- `2025-slides/` and `docs/2026-slide-translation.md` — the 2025 deck split by
+  session, and the per-slide translation map.
 
-Layout sizing (image max-width, bullet spacing, heading sizes) and reusable layout patterns (e.g. `.side-by-side` for horizontal image pairs, `.image-grid` for 2×N photo grids) live in `tools/slides.css` as named classes. Cells may wrap content in HTML referencing those classes (`<div class="side-by-side">…</div>`); never use inline `style="..."`, inline `width=`/`height=` attributes, or per-cell ad-hoc CSS. See note `.notes/feedback_class-based-layout-patterns.md`.
-
-### Click-to-reveal + lightbox (slideshow ergonomics)
-
-`tools/render_slides.py` injects a small JS block alongside the CSS so the live HTML deck (not the print-PDF) has two interaction patterns:
-
-- **Click-to-reveal code** — on §4 image-then-code beats, the code cell's **input** is hidden by default (`html:not(.print-pdf) .reveal section > .jp-Cell.jp-CodeCell > .jp-Cell-inputWrapper { display: none }`); clicking the markdown-cell image toggles `.show-code` on the parent `<section>` which un-hides the input. The **output** stays visible always, so the live Python plot/table is the visual the instructor presents.
-- **Lightbox** — clicking any output image (a matplotlib figure inside `.jp-OutputArea`) opens it fullscreen on a black overlay. Click-anywhere or Escape dismisses. Required for the 237-leaf whole-corpus dendrogram which is unreadable at slide scale.
-
-The print-pdf render uses the `html.print-pdf` class added by reveal.js; the click-to-reveal selector's `html:not(.print-pdf)` guard means every code input is force-shown in the PDF QA render. **If a PDF QA looks fine but the live HTML deck looks empty on a slide, suspect the input/output split** — make sure outputs aren't accidentally caught by an input-hide rule.
+Because the day-N notebooks are no longer presented, their content can drift
+from the code-along without breaking anything. Do not spend QA effort
+reconciling them, and do not treat a stale line in one as a defect in the
+course.
 
 ### Notebook-cell editing
 
