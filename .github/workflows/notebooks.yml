@@ -18,8 +18,25 @@ on:
 
 jobs:
   execute:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: Linux
+            expect: Linux
+          - os: macos-latest
+            label: macOS (Apple Silicon)
+            expect: Darwin
+          - os: windows-latest
+            label: Windows
+            expect: Windows
     steps:
       - uses: actions/checkout@v5
 
@@ -29,6 +46,9 @@ jobs:
 
       - name: Install the project
         run: uv sync
+
+      - name: Assert this leg really is ${{ matrix.label }}
+        run: uv run python tools/report_environment.py --expect-system ${{ matrix.expect }}
 
       - name: Set the LIWC dictionary aside
         # Notebook 2 asks for the resources.zip password with input(), which is right
@@ -87,6 +107,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: executed-notebooks
+          name: executed-notebooks-${{ matrix.os }}
           path: /tmp/executed/
           retention-days: 7

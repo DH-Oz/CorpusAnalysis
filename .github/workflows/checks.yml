@@ -1,7 +1,9 @@
 name: checks
 
-# The fast gate. Everything here runs in under a couple of minutes, so it can run on
-# every push without anyone learning to ignore it.
+# The fast gate. It runs on every platform a student might be on, because neither
+# instructor uses Windows or macOS and a platform bug would otherwise reach the room
+# before it reached us. The dictionary encoding tests are the reason this is a matrix
+# rather than one Linux job.
 
 on:
   push:
@@ -10,7 +12,25 @@ on:
 
 jobs:
   checks:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: Linux
+            expect: Linux
+            primary: true
+          - os: macos-latest
+            label: macOS (Apple Silicon)
+            expect: Darwin
+          - os: macos-15-intel
+            label: macOS (Intel)
+            expect: Darwin
+          - os: windows-latest
+            label: Windows
+            expect: Windows
     steps:
       - uses: actions/checkout@v5
 
@@ -21,20 +41,24 @@ jobs:
       - name: Install the project
         run: uv sync
 
+      - name: Assert this leg really is ${{ matrix.label }}
+        # A matrix label is a claim until the leg checks it. sotu's CI advertised five
+        # Python versions while running one, for five releases, because nothing made
+        # the leg prove where it was. See .notes/feedback_verify-what-a-check-could-not-see.md
+        run: uv run python tools/report_environment.py --expect-system ${{ matrix.expect }}
+
       - name: Unit tests
         run: uv run pytest -q
 
       - name: requirements.txt matches pyproject.toml
-        # requirements.txt is generated. If someone hand-edits it, or edits pyproject
-        # without regenerating, students install a different set from the one we test.
+        if: matrix.primary
         run: uv run python tools/sync_requirements.py --check
 
       - name: Every dependency ships a prebuilt wheel
-        # Half the room is on a locked-down machine with no compiler. A dependency that
-        # has to build from source turns into an Xcode prompt on macOS, mid-workshop.
+        # Reads PyPI, so once is enough. Its answer does not vary by runner.
+        if: matrix.primary
         run: uv run python tools/check_wheels.py
 
       - name: Notebooks explain in markdown, not in comment blocks
-        # The convention from .notes/feedback_markdown-cells-over-code-comments.md: a
-        # multi-line comment preamble belongs above the cell as rendered prose.
+        if: matrix.primary
         run: uv run python tools/check_markdown_convention.py
