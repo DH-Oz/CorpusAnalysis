@@ -1,0 +1,83 @@
+name: release
+
+# Tag the repo and the student zip appears on the release. Nothing else to do.
+#
+# It works from either direction, because both happen. Drafting a release in the
+# GitHub UI pushes the tag, which starts this; pushing a tag from a terminal starts
+# it with no release yet in existence. The upload step below handles each.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build, e.g. v2026.1. Builds without publishing."
+        required: false
+        default: dev
+
+jobs:
+  bundle:
+    name: Build the student zip
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install the project
+        run: uv sync
+
+      - name: Unit tests
+        run: uv run pytest -q
+
+      - name: Notebooks carry the outputs of one clean run
+        # The notebooks are the deliverable here, and their stored outputs are the
+        # answer keys students rely on. Shipping a half-executed one is shipping a
+        # broken answer key, so this gates the release rather than only the branch.
+        run: uv run python tools/check_outputs.py
+
+      - name: Every Python construct is explained before a learner meets it
+        run: uv run python tools/check_taught_idioms.py
+
+      - name: Work out the version
+        id: version
+        run: echo "value=${{ github.event_name == 'push' && github.ref_name || inputs.version }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build the bundle
+        run: uv run python tools/build_release.py --version "${{ steps.version.outputs.value }}" --out dist
+
+      - name: Show what is in it
+        run: unzip -l dist/*.zip
+
+      - name: Prove no licensed dictionary travelled
+        # build_release verifies this itself and refuses. Checking again here, from
+        # outside that code, means a bug in its own gate cannot pass unnoticed.
+        run: |
+          if unzip -l dist/*.zip | grep -iq 'liwc.*\.dic'; then
+            echo "A licensed dictionary reached the bundle. Refusing to publish."
+            exit 1
+          fi
+          echo "Clean."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: student-bundle
+          path: dist/*.zip
+
+      - name: Attach it to the release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.zip --clobber
+          else
+            gh release create "$TAG" dist/*.zip --generate-notes \
+              --title "Corpus Analysis Masterclass $TAG"
+          fi
