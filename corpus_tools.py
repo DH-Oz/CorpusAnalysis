@@ -47,6 +47,7 @@ import matplotlib.pyplot as plt
 import networkx
 import numpy
 import pandas
+import statsmodels.api
 import wordcloud
 from skmisc.loess import loess
 
@@ -417,6 +418,45 @@ def dispersion_plot(labels, lengths, positions, title, mark_size=100, ax=None):
     if owns_figure:
         figure.tight_layout()
         plt.show()
+
+
+def linear_band(x, y, ax=None, points=200, alpha=0.05, color="black", label=None):
+    """Fit a straight line by least squares and return it with a confidence band.
+
+    The counterpart to loess_band, deliberately the same shape so the two can be
+    drawn on one axes and compared. x and y are equal-length sequences, alpha=0.05
+    gives the 95% band, and passing ax draws the line and band into an axes the
+    caller already made.
+
+    Returns (grid, fitted, lower, upper, model). The fifth item is the fitted
+    statsmodels result, so a lesson can print its summary table alongside the
+    picture and let the two disagree in public.
+
+    Dashed black, against loess_band's solid black. Distinguished by line style
+    rather than by hue on purpose: seaborn's categorical palette already spends
+    every colour on the parties, so a coloured trend line reads as another party.
+    That mistake was made twice in this file's history before the rule stuck.
+    """
+    x_values = numpy.asarray(x, dtype=float)
+    y_values = numpy.asarray(y, dtype=float)
+
+    design = statsmodels.api.add_constant(x_values)
+    model = statsmodels.api.OLS(y_values, design).fit()
+
+    grid = numpy.linspace(x_values.min(), x_values.max(), points)
+    prediction = model.get_prediction(statsmodels.api.add_constant(grid))
+    summary = prediction.summary_frame(alpha=alpha)
+
+    fitted = numpy.asarray(summary["mean"], dtype=float)
+    lower = numpy.asarray(summary["mean_ci_lower"], dtype=float)
+    upper = numpy.asarray(summary["mean_ci_upper"], dtype=float)
+
+    if ax is not None:
+        ax.plot(grid, fitted, color=color, linewidth=2, linestyle="--",
+                label=label, zorder=3)
+        ax.fill_between(grid, lower, upper, color=color, alpha=0.10, zorder=2)
+
+    return grid, fitted, lower, upper, model
 
 
 def loess_band(x, y, ax=None, points=200, alpha=0.05, color="black", label=None):
