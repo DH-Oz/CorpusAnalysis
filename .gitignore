@@ -76,3 +76,6 @@ nuclear-decades.pdf
 
 # Executed notebooks written by the notebooks CI workflow
 executed/
+
+# Stamps for tools/preflight.py (which notebooks have run clean)
+.preflight-stamps.json
