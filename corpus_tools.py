@@ -24,9 +24,11 @@ Columns returned, in order:
 Percentage columns are rounded to `digits` places (2 by default). WC and WPS are
 left unrounded, matching the R function.
 
-The category matching is done by the `liwc` library, which reads the LIWC file
-format and handles the trailing-'*' wildcard. We add only the per-document
-normalisation that R's liwcalike performs.
+The category matching is done by the `liwc` library, which handles the
+trailing-'*' wildcard. We add the per-document normalisation that R's liwcalike
+performs, and we read the dictionary file ourselves, as UTF-8. See
+load_token_parser for why: the library's own reader follows the machine's locale
+encoding, which silently breaks every accented term on a Windows machine.
 
 This module also provides comparison_cloud, an R-style comparison word cloud
 (R's textplot_wordcloud(comparison = TRUE)), built on the same wordcloud library.
@@ -39,6 +41,7 @@ This module also provides comparison_cloud, an R-style comparison word cloud
 import re
 
 import liwc
+import liwc.trie
 import matplotlib
 import matplotlib.pyplot as plt
 import networkx
@@ -48,13 +51,71 @@ import wordcloud
 from skmisc.loess import loess
 
 
+def load_token_parser(dictionary_path):
+    """Read a LIWC-format dictionary as UTF-8 and return liwc's token parser.
+
+    Use this in place of liwc.load_token_parser. The library opens the file with
+    no encoding, so Python falls back to whatever the machine's locale says. On
+    Windows that is usually cp1252, which reads the UTF-8 bytes of 'niederträch*'
+    as 'niedertrÃ¤ch*'. Nothing raises. The pattern simply stops matching, and
+    every German category carrying an umlaut silently counts zero.
+
+    The parsing below is the library's own, with the encoding made explicit. The
+    trie that does the matching is still liwc's, because only the reading is wrong.
+
+    Returns (parse_token, category_names), the same pair the library returns.
+    """
+    category_names_by_id = {}
+    lexicon = {}
+
+    with open(dictionary_path, encoding="utf-8") as dictionary_file:
+        lines = dictionary_file.readlines()
+
+    # A .dic file is two sections divided by lines holding only '%'. The first
+    # numbers the categories, the second lists each term and the ids it belongs to.
+    line_index = 0
+    while line_index < len(lines):
+        if lines[line_index].strip() == "%":
+            line_index = line_index + 1
+            break
+        line_index = line_index + 1
+
+    while line_index < len(lines):
+        line = lines[line_index].strip()
+        line_index = line_index + 1
+        if line == "%":
+            break
+        if "\t" in line:
+            category_id, category_name = line.split("\t", 1)
+            category_names_by_id[category_id] = category_name
+
+    while line_index < len(lines):
+        parts = lines[line_index].strip().split("\t")
+        line_index = line_index + 1
+        if not parts[0]:
+            continue
+        categories = []
+        for category_id in parts[1:]:
+            if category_id in category_names_by_id:
+                categories.append(category_names_by_id[category_id])
+        lexicon[parts[0]] = categories
+
+    trie = liwc.trie.build_trie(lexicon)
+
+    def parse_token(token):
+        for category_name in liwc.trie.search_trie(trie, token):
+            yield category_name
+
+    return parse_token, list(category_names_by_id.values())
+
+
 def liwcalike(texts, docnames, dictionary_path, tolower=True, digits=2):
     """Return a per-document dictionary-percentage table as a DataFrame.
 
     texts and docnames are equal-length lists. dictionary_path points at a
     LIWC-format .dic file. tolower lowercases each document before matching.
     """
-    token_categories, category_names = liwc.load_token_parser(dictionary_path)
+    token_categories, category_names = load_token_parser(dictionary_path)
 
     rows = []
     for document_index, text in enumerate(texts):
