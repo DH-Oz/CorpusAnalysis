@@ -35,6 +35,8 @@ STATIC_CHECKS = [
     ("requirements match pyproject", ["python", "tools/sync_requirements.py", "--check"]),
     ("one plot type, one library", ["python", "tools/check_plot_libraries.py"]),
     ("explanations in markdown", ["python", "tools/check_markdown_convention.py"]),
+    ("notebooks carry a clean run", ["python", "tools/check_outputs.py"]),
+    ("idioms explained before use", ["python", "tools/check_taught_idioms.py"]),
 ]
 
 
@@ -59,14 +61,24 @@ def stale_notebooks(root, stamps, run_all):
     return stale
 
 
-def execute(path, workdir):
-    result = subprocess.run(
-        ["uv", "run", "jupyter", "nbconvert", "--to", "notebook", "--execute",
-         str(path), "--output-dir", str(workdir), "--output", path.name],
-        cwd=path.parent, capture_output=True, text=True,
-    )
-    executed = workdir / path.name
-    if not executed.exists():
+def execute(path, workdir, inplace=False):
+    """Run the notebook. With inplace, the file on disk keeps its outputs.
+
+    The returncode is what says whether the run succeeded. Checking only that the
+    output file exists works for a temp copy, which nbconvert never writes on
+    failure, and silently inverts for --inplace, where the source file exists
+    either way and a failed run would come back looking like a clean one.
+    """
+    if inplace:
+        command = ["uv", "run", "jupyter", "nbconvert", "--to", "notebook",
+                   "--execute", "--inplace", str(path)]
+        executed = path
+    else:
+        command = ["uv", "run", "jupyter", "nbconvert", "--to", "notebook", "--execute",
+                   str(path), "--output-dir", str(workdir), "--output", path.name]
+        executed = workdir / path.name
+    result = subprocess.run(command, cwd=path.parent, capture_output=True, text=True)
+    if result.returncode != 0 or not executed.exists():
         return None, result
     return json.loads(executed.read_text(encoding="utf-8")), result
 
@@ -105,6 +117,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--all", action="store_true", help="Re-run every notebook.")
     parser.add_argument("--quiet", action="store_true", help="Errors only.")
+    parser.add_argument("--inplace", action="store_true",
+                        help="Write the outputs back into the notebook, which is what "
+                             "the committed copies carry.")
     arguments = parser.parse_args()
 
     root = Path(__file__).resolve().parent.parent
@@ -120,7 +135,7 @@ def main():
             workdir = Path(tmp)
             for path, mtime in stale:
                 print(f"\n  {path.name}")
-                notebook, result = execute(path, workdir)
+                notebook, result = execute(path, workdir, arguments.inplace)
                 if notebook is None:
                     failed = failed + 1
                     print("    did not execute at all:")
@@ -131,7 +146,9 @@ def main():
                 if errors:
                     failed = failed + 1
                 else:
-                    stamps[path.name] = mtime
+                    # Executing in place rewrites the file, so the mtime taken before
+                    # the run is already stale and would re-run this notebook forever.
+                    stamps[path.name] = path.stat().st_mtime if arguments.inplace else mtime
         save_stamps(root, stamps)
 
     static_failures = []
