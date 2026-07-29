@@ -73,10 +73,10 @@ each split PDF in `2025-slides/`.
 A `0-setup-check.ipynb` smoke test then runs before notebook 1.
 
 **First-look figures → notebook 1's live output.** Each runs to 2026, including Biden and Trump:
-- length scatter → `figures/1-sotu-first-look-00.png` (points, not the 2025 line: speeches are discrete events)
-- corpus wordcloud → `figures/1-sotu-first-look-01.png`
-- five dendrograms, metric × era → `figures/1-sotu-first-look-02.png` … `-06.png`
-- three comparison clouds → `figures/1-sotu-first-look-07.png` … `-09.png`
+- length scatter → `figures/1a-sotu-corpus-00.png` (points, not the 2025 line: speeches are discrete events)
+- corpus wordcloud → `figures/1a-sotu-corpus-01.png`
+- five dendrograms, metric × era → `figures/1b-sotu-by-speech-00.png` … `-04.png`
+- three comparison clouds → `figures/1b-sotu-by-speech-05.png` … `-07.png`
 
 **Console output → notebook output.** `head(dfmat_sotu)`, `topfeatures()`, the LDA term table (pp29, 34): screenshot the Python notebook running, not the R console.
 
@@ -96,7 +96,7 @@ A `0-setup-check.ipynb` smoke test then runs before notebook 1.
 
 **Hello-World chunk (text).** The R chunk `print("Hello World")` → a Python cell: `print("Hello, world!")`.
 
-**Follow-along pointer (text).** "Follow along: corpusmasterclass0.Rmd" → "Follow along: `1-sotu-first-look.ipynb`".
+**Follow-along pointer (text).** "Follow along: corpusmasterclass0.Rmd" → "Follow along: `1a-sotu-corpus.ipynb`, then `1b-sotu-by-speech.ipynb`".
 
 **"Knit to PDF report" beat — drop.** No Jupyter equivalent students need. Cut the slide, or let "run cells, see output" stand in.
 

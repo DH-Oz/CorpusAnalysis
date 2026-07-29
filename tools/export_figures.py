@@ -27,10 +27,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The four code-along notebooks at the repo root. Lecture figures come from
+# The five code-along notebooks at the repo root. Lecture figures come from
 # these analyses; the day-N decks are conceptual and live in Google Slides.
 DEFAULT_NOTEBOOKS = [
-    "1-sotu-first-look.ipynb",
+    "1a-sotu-corpus.ipynb",
+    "1b-sotu-by-speech.ipynb",
     "2-dictionary-content.ipynb",
     "3a-collocations-dispersion.ipynb",
     "3b-nietzsche-german-paragraphs.ipynb",
