@@ -62,3 +62,10 @@ jobs:
       - name: Notebooks explain in markdown, not in comment blocks
         if: matrix.primary
         run: uv run python tools/check_markdown_convention.py
+
+      - name: One plot type, one library
+        # A student should not have to learn two APIs to read the same kind of
+        # picture twice. Scatters are seaborn; networks, clouds and dispersion
+        # plots are matplotlib and networkx.
+        if: matrix.primary
+        run: uv run python tools/check_plot_libraries.py
