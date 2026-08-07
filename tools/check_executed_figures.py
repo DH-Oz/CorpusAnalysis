@@ -10,6 +10,12 @@ temp directory while the counter looked in D:\\tmp and found nothing.
 So an empty or missing directory is a distinct, loudly-named failure rather than a
 figure count of zero.
 
+How many notebooks to expect is read from the repo rather than hardcoded. A fixed
+number went stale the moment notebook 1 was split into 1a and 1b, and the guard then
+refused to count anything for a fortnight while the notebooks themselves were fine.
+Comparing two directories keeps the original protection, because a checker pointed at
+the wrong place still finds nothing where the repo has six.
+
     uv run python tools/check_executed_figures.py executed --min-figures 40
 """
 
@@ -24,8 +30,9 @@ def main():
     parser.add_argument("directory", help="Directory holding the executed notebooks.")
     parser.add_argument("--min-figures", type=int, default=40,
                         help="Fail below this many figures in total.")
-    parser.add_argument("--expect-notebooks", type=int, default=5,
-                        help="Fail unless this many notebooks are present.")
+    parser.add_argument("--source", default=".",
+                        help="Where the course notebooks live. How many are there is "
+                             "how many the executed directory must hold.")
     arguments = parser.parse_args()
 
     directory = Path(arguments.directory)
@@ -34,10 +41,16 @@ def main():
         print("This is a broken check, not a broken notebook. Nothing was counted.")
         return 2
 
+    source = sorted(Path(arguments.source).glob("[0-9]*.ipynb"))
+    if not source:
+        print(f"No course notebooks in {Path(arguments.source).resolve()}.")
+        print("This is a broken check, not a broken notebook. Nothing was counted.")
+        return 2
+
     notebooks = sorted(directory.glob("*.ipynb"))
-    if len(notebooks) != arguments.expect_notebooks:
+    if len(notebooks) != len(source):
         print(f"Found {len(notebooks)} notebooks in {directory.resolve()}, "
-              f"expected {arguments.expect_notebooks}.")
+              f"but the repo has {len(source)}.")
         print("This is a broken check, not a broken notebook. Nothing was counted.")
         return 2
 

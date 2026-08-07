@@ -11,6 +11,7 @@ would go unnoticed until someone took the other route.
 
 from __future__ import annotations
 
+import os
 import stat
 import zipfile
 from pathlib import Path
@@ -107,6 +108,11 @@ def test_the_gate_passes_a_clean_bundle(tmp_path: Path):
     assert verify(target) == target
 
 
+@pytest.mark.skipif(os.name == "nt",
+                    reason="Windows has no executable bit. chmod there toggles "
+                           "read-only, so the fixture cannot set the mode this "
+                           "asserts and the check can never pass. The release is "
+                           "built on Linux, where the bit exists and this runs.")
 def test_the_unix_launcher_is_still_executable_after_unzipping(repo: Path, tmp_path: Path):
     target = build(repo, tmp_path / "out.zip", "corpus-analysis-v2026.1")
     with zipfile.ZipFile(target) as archive:
