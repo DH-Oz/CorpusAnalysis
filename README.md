@@ -30,20 +30,40 @@ Materials are distributed as a **release zip** — no git knowledge required.
 
 Do this once before the course starts, so that a slow download does not eat into the first session.
 
-Inside the unzipped folder there is a file for your machine:
+Inside the unzipped folder there is a launcher for your machine. Windows starts it with a double-click. macOS needs two typed lines instead, for the reason below.
 
-- **Windows**: `start-jupyter.bat`
-- **macOS and Linux**: `start-jupyter.command`
+### Windows
 
-Double-click it. A black window opens and tells you what it is doing. The first run takes several minutes, because it builds the course environment. Every run after that takes a few seconds.
+Double-click `start-jupyter.bat`. A black window opens and tells you what it is doing.
+
+### macOS
+
+Do not double-click the launcher. macOS refuses to run programs that arrived from the internet, and you get a box saying Apple cannot check the file for malicious software, offering only **Delete** and **Close**. If you have already seen it, click **Close**. Never click **Delete**, because that throws the launcher away.
+
+Starting it from the Terminal sidesteps that entirely. There is nothing to unlock and no password to find.
+
+1. Open the **Terminal** app. It lives in Applications, then Utilities. A window opens with a blinking cursor.
+2. Type `cd` followed by a space. Do not press Return yet.
+3. Find the unzipped course folder in Finder and drag it onto the Terminal window. Terminal fills in where the folder lives, so you never type a path. Now press Return.
+4. Type the following and press Return:
+
+   ```
+   sh start-jupyter.sh
+   ```
+
+You run those two lines every time you start the course, so keep the Terminal window handy.
+
+### Linux
+
+Open a terminal, `cd` to the unzipped folder, and run `sh start-jupyter.sh`.
+
+### Once it starts
+
+The first run takes several minutes, because it builds the course environment. Every run after that takes a few seconds.
 
 When JupyterLab opens in your browser, open `0-setup-check.ipynb` and run every cell. The first cell is slow the first time, sometimes for half a minute, while Python caches the libraries as it loads them. If every cell runs without an error, you are ready.
 
-Leave the black window open while you work. Closing it stops Jupyter.
-
-### The first time on a Mac
-
-macOS blocks files that came from the internet until you confirm you meant to open them. If double-clicking does nothing, or you see a warning about an unidentified developer, **right-click** `start-jupyter.command`, choose **Open**, then click **Open** in the dialog. You only do this once.
+Leave that window open while you work, whether it is the black window Windows opened or the Terminal you typed into. Closing it stops Jupyter.
 
 ### If you have no conda yet
 

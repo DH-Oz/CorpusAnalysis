@@ -1,8 +1,14 @@
 #!/bin/sh
 # Corpus Analysis Masterclass - macOS and Linux launcher.
 #
-# Double-click this file. It finds conda, offers to install it if you have none,
-# builds the course environment the first time, then starts JupyterLab.
+# Run it as "sh start-jupyter.sh" from a terminal opened in this folder. It finds
+# conda, offers to install it if you have none, builds the course environment the
+# first time, then starts JupyterLab.
+#
+# Do not double-click it on a Mac. macOS refuses a downloaded launcher it cannot
+# check, offering only Delete and Close, and the bypass Apple left behind wants an
+# administrator password. Reading this file through "sh" avoids the check entirely,
+# which is why the extension is .sh and not .command.
 #
 # There is no "conda activate" step, because "conda run" does the same job without
 # needing "conda init" to have been run first.
@@ -12,7 +18,7 @@ cd "$(dirname "$0")" || exit 1
 MINIFORGE_HOME="$HOME/miniforge3"
 
 pause_and_exit() {
-    printf "\nPress Return to close this window. "
+    printf "\nPress Return to finish. "
     read -r _
     exit "$1"
 }

@@ -29,7 +29,7 @@ REQUIRED_FILES = [
     "requirements.txt",
     "resources.zip",
     "start-jupyter.bat",
-    "start-jupyter.command",
+    "start-jupyter.sh",
 ]
 
 # Whole directories, taken as they are.
@@ -123,8 +123,10 @@ def build(root, target, folder_name):
     target.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as archive:
         for path, arcname in entries:
-            # ZipFile.write carries the file mode through, which is what keeps
-            # start-jupyter.command double-clickable on macOS after unzipping.
+            # ZipFile.write carries the file mode through, so start-jupyter.sh
+            # arrives executable. Students are taught `sh start-jupyter.sh`, which
+            # does not need the bit, but anyone running ./start-jupyter.sh on Linux
+            # does, and a mode lost here would be invisible until they tried.
             archive.write(path, f"{folder_name}/{arcname}")
     return verify(target)
 

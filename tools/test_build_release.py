@@ -3,8 +3,10 @@
 Run via: `uv run pytest tools/test_build_release.py -q`
 
 Two of these matter more than the rest. The bundle must never carry a licensed
-dictionary, and `start-jupyter.command` must come out of the zip still executable,
-because a macOS student who cannot double-click it has no way into the course.
+dictionary, and `start-jupyter.sh` must come out of the zip still executable, because
+a Linux student running `./start-jupyter.sh` has no way into the course without it.
+Students are taught `sh start-jupyter.sh`, which works either way, so a lost mode
+would go unnoticed until someone took the other route.
 """
 
 from __future__ import annotations
@@ -24,7 +26,7 @@ def repo(tmp_path: Path) -> Path:
     for name in ("README.md", "corpus_tools.py", "environment.yml", "requirements.txt",
                  "resources.zip", "start-jupyter.bat"):
         (tmp_path / name).write_text(f"{name} contents\n", encoding="utf-8")
-    launcher = tmp_path / "start-jupyter.command"
+    launcher = tmp_path / "start-jupyter.sh"
     launcher.write_text("#!/bin/sh\necho hi\n", encoding="utf-8")
     launcher.chmod(0o755)
 
@@ -56,7 +58,7 @@ def arcnames(repo: Path) -> set[str]:
 def test_the_student_facing_files_are_all_there(repo: Path):
     names = arcnames(repo)
     for expected in ("README.md", "corpus_tools.py", "environment.yml", "requirements.txt",
-                     "resources.zip", "start-jupyter.bat", "start-jupyter.command",
+                     "resources.zip", "start-jupyter.bat", "start-jupyter.sh",
                      "0-setup-check.ipynb", "1-sotu-first-look.ipynb",
                      "dictionaries/nuke.dic", "nietzsche/1885 Z.txt"):
         assert expected in names, expected
@@ -105,10 +107,10 @@ def test_the_gate_passes_a_clean_bundle(tmp_path: Path):
     assert verify(target) == target
 
 
-def test_the_mac_launcher_is_still_executable_after_unzipping(repo: Path, tmp_path: Path):
+def test_the_unix_launcher_is_still_executable_after_unzipping(repo: Path, tmp_path: Path):
     target = build(repo, tmp_path / "out.zip", "corpus-analysis-v2026.1")
     with zipfile.ZipFile(target) as archive:
-        info = archive.getinfo("corpus-analysis-v2026.1/start-jupyter.command")
+        info = archive.getinfo("corpus-analysis-v2026.1/start-jupyter.sh")
         mode = info.external_attr >> 16
     assert mode & stat.S_IXUSR, f"lost the executable bit, mode was {mode:o}"
 

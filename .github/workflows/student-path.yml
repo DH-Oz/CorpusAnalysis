@@ -1,8 +1,17 @@
 name: student-path
 
-# What a student actually does: download the folder, double-click one file, and end
-# up in JupyterLab. Nothing else in CI covers that, because everything else starts
-# from a working uv environment the student will never have.
+# What a student actually does: download the folder, start one file, and end up in
+# JupyterLab. Nothing else in CI covers that, because everything else starts from a
+# working uv environment the student will never have.
+#
+# Invoke the launcher exactly as the README teaches it. Windows double-clicks the
+# .bat; macOS and Linux run `sh start-jupyter.sh`, which is what walks around
+# Gatekeeper, because a script read by sh is never launched and so is never checked.
+#
+# What this workflow cannot see: Gatekeeper itself. It fires on the quarantine
+# attribute a browser sets and on a Finder double-click, and a CI checkout has
+# neither. A green run here says the launcher works, never that a downloaded copy
+# opens. That gap is why the .command double-click path reached students broken.
 #
 # The launchers set COURSE_LAUNCHER_SELFTEST here so they check JupyterLab runs and
 # then exit, instead of leaving a server up until the job times out.
@@ -10,7 +19,7 @@ name: student-path
 on:
   push:
     paths:
-      - "start-jupyter.command"
+      - "start-jupyter.sh"
       - "start-jupyter.bat"
       - "environment.yml"
       - "requirements.txt"
@@ -45,10 +54,16 @@ jobs:
           fi
           echo "No conda present, which is the case we want to test."
 
+      - name: The launcher is committed executable
+        run: |
+          # Not a chmod. Students are taught `sh start-jupyter.sh`, which runs with or
+          # without the bit, so a mode lost in a commit would never surface below.
+          test -x start-jupyter.sh || { echo "start-jupyter.sh is not executable in git"; exit 1; }
+          echo "Committed executable, so ./start-jupyter.sh works too."
+
       - name: Decline the install, and check nothing was installed
         run: |
-          chmod +x start-jupyter.command
-          echo "n" | ./start-jupyter.command > decline.log 2>&1 || true
+          echo "n" | sh start-jupyter.sh > decline.log 2>&1 || true
           grep -q "Nothing was installed" decline.log
           test ! -d "$HOME/miniforge3"
           echo "Declining leaves the machine untouched."
@@ -57,7 +72,7 @@ jobs:
         env:
           COURSE_LAUNCHER_SELFTEST: "1"
         run: |
-          echo "y" | ./start-jupyter.command
+          echo "y" | sh start-jupyter.sh
           test -d "$HOME/miniforge3"
 
       - name: The install stayed in userland and left the shell alone
@@ -99,8 +114,7 @@ jobs:
         env:
           COURSE_LAUNCHER_SELFTEST: "1"
         run: |
-          chmod +x start-jupyter.command
-          echo "y" | ./start-jupyter.command
+          echo "y" | sh start-jupyter.sh
 
       - name: Run the launcher
         if: matrix.launcher == 'batch'

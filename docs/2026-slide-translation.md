@@ -60,15 +60,15 @@ each split PDF in `2025-slides/`.
 
 > **Slide 24 — Setting up and starting Jupyter** *(rewritten 2026-07-29: the terminal route is no longer the taught path)*
 > 1. Unzip the course zip onto your Desktop.
-> 2. Open the folder and double-click one file:
->    - Windows: `start-jupyter.bat`
->    - Mac: `start-jupyter.command`
+> 2. Start it the way your machine wants:
+>    - Windows: double-click `start-jupyter.bat`
+>    - Mac: open Terminal, type `cd` and a space, drag the folder in, press Return, then run `sh start-jupyter.sh`
 > 3. The first time, it asks whether to install Miniforge. Say yes. It goes in one folder in your home directory and needs no admin password.
 > 4. It then builds the course environment, which takes a few minutes, and opens JupyterLab in your browser.
 > 5. Leave the black window open while you work.
 > 6. In the Day 1 notebook, type `print("Hello, world!")` and press Shift + Enter.
 >
-> *Spoken:* the first Mac launch may need right-click → Open, because macOS blocks files that arrived from the internet. There is no `conda activate` to remember, which is the step that used to break people. Anyone who wants the terminal route has it in the README.
+> *Spoken:* Mac users, do not double-click the launcher. macOS blocks anything that came off the internet, and the box it shows you offers only Delete and Close, which is a cruel pair of choices. Starting it from the Terminal walks around the whole problem, because the file is being read rather than launched. Two lines, once per session, and no password. There is also no `conda activate` to remember, which is the step that used to break people.
 
 A `0-setup-check.ipynb` smoke test then runs before notebook 1.
 
