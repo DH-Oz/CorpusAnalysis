@@ -21,10 +21,12 @@ The course assumes **no prior Python experience**. Python concepts (loops, condi
 
 Materials are distributed as a **release zip** — no git knowledge required.
 
-1. Visit the course site: https://DH-Oz.github.io/CorpusAnalysis (live after first deploy).
-2. Download the latest **release zip** linked from the landing page.
-3. Unzip it somewhere convenient. Everything the course needs sits inside that one folder.
-4. Start the course by double-clicking one file, as below. If your machine is locked down and that is not possible, use [Google Colab](https://colab.research.google.com) instead.
+1. Go to the course site: https://dh-oz.github.io/CorpusAnalysis/
+2. Click **Download the course folder**. That link always fetches the current zip, so it stays right between years.
+3. Unzip it somewhere you can find again, such as your Desktop. Everything the course needs sits inside that one folder.
+4. Start it as described below: Windows double-clicks, macOS and Linux use a terminal. If your machine is locked down and none of that is possible, use [Google Colab](https://colab.research.google.com) instead.
+
+Do not download the repository itself from GitHub's green **Code** button. That gives you the working repo rather than the course folder, without the notebook outputs you need as answer keys.
 
 ## Starting the course
 
@@ -87,13 +89,55 @@ If the terminal cannot find `conda` at all, use the launcher instead. On Windows
 
 ## Backup: Google Colab
 
-If your machine is locked down and a local install isn't possible:
+If your machine will not let you install anything, the course runs in a browser
+instead. You need a Google account and the course zip.
 
-1. Go to https://colab.research.google.com.
-2. Choose **File → Upload notebook** and upload `0-setup-check.ipynb` from the release zip.
-3. Upload the supporting files from the zip, including `corpus_tools.py` and the dictionaries.
+Put the folder in Google Drive rather than uploading it to Colab directly. Files
+uploaded straight into Colab are thrown away when it disconnects, which over four days
+means uploading everything again every morning. In Drive it stays put.
 
-Some advanced features (e.g. file system access patterns) may need small adjustments in Colab — the notebooks flag these inline.
+**Once, at the start:**
+
+1. Unzip the course zip on whatever machine you can, even a phone or a library
+   computer. You want the folder, not the zip.
+2. Go to https://drive.google.com and drag the whole unzipped folder into the window.
+   Wait for it to finish uploading.
+3. Go to https://colab.research.google.com, choose **File → Open notebook**, then the
+   **Google Drive** tab, and open `0-setup-check.ipynb` from the folder you uploaded.
+
+**Then, at the start of every session:**
+
+4. Run this in the first cell to reach your files, and click through the permission
+   prompt it shows:
+
+   ```python
+   from google.colab import drive
+   drive.mount('/content/drive')
+   %cd /content/drive/MyDrive/corpus-analysis-v2026.1
+   ```
+
+   Change the last line if you renamed the folder or put it somewhere else in Drive.
+
+5. Install the course libraries, which Colab does not have:
+
+   ```python
+   !pip install -r requirements.txt
+   ```
+
+   This takes a couple of minutes. **Colab will then ask you to restart the session,
+   and you should say yes.** It is replacing versions of numpy and pandas that were
+   already loaded, and the new ones are only picked up after a restart. After
+   restarting, run step 4 again, but not step 5.
+
+6. Run the rest of `0-setup-check.ipynb`. If every cell runs without an error, you are
+   ready.
+
+Your work saves back into Drive, so it is still there next session.
+
+Two things behave differently from a local install. Anything you save goes to the
+Drive folder rather than your own disk, and the LIWC lesson on day 3 needs a
+dictionary you supply yourself, which you upload into the same folder. Bring either
+problem to us rather than fighting it alone.
 
 ## Licences
 
