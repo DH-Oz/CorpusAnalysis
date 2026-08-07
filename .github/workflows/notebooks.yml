@@ -13,6 +13,11 @@ on:
       - "dictionaries/**"
       - "nietzsche/**"
       - ".github/workflows/notebooks.yml"
+      # The tools this job runs. Without these, fixing the figure counter does not
+      # re-run the check that uses it, and the job keeps reporting the old verdict
+      # against a checker that has already been repaired.
+      - "tools/check_executed_figures.py"
+      - "tools/report_environment.py"
   pull_request:
   workflow_dispatch:
 
