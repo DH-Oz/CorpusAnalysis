@@ -69,6 +69,14 @@ jobs:
           name: student-bundle
           path: dist/*.zip
 
+      - name: Also name a copy without the version
+        # The landing page needs one link that never changes. GitHub's
+        # releases/latest/download/<name> redirect resolves by asset name, so a name
+        # carrying the version stops working the moment a new one is tagged. Both
+        # copies are attached: the versioned one is what someone downloads
+        # deliberately, and corpus-analysis.zip is what the site points at.
+        run: cp dist/corpus-analysis-*.zip dist/corpus-analysis.zip
+
       - name: Attach it to the release
         if: github.event_name == 'push'
         env:

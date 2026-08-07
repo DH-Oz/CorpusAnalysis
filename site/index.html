@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corpus Analysis Masterclass — DH Winter School 2026</title>
+<meta name="description" content="Course materials for the corpus analysis stream of the Digital Humanities Winter School, 25–28 August 2026.">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #5a5a5a;
+    --rule: #e0e0e0;
+    --accent: #8a2f2f;
+    --card: #f7f6f4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181c;
+      --fg: #e8e6e3;
+      --muted: #a5a29d;
+      --rule: #2e3238;
+      --accent: #e08585;
+      --card: #1e2126;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 2.5rem 1.25rem 4rem;
+    background: var(--bg);
+    color: var(--fg);
+    font: 17px/1.65 Georgia, "Iowan Old Style", "Times New Roman", serif;
+  }
+  main { max-width: 40rem; margin: 0 auto; }
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+    margin: 0 0 .35rem;
+    letter-spacing: -.01em;
+  }
+  .standfirst { color: var(--muted); margin: 0 0 2.5rem; font-size: 1.05rem; }
+  h2 {
+    font-size: 1.15rem;
+    margin: 2.5rem 0 .75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+  h2:first-of-type { border-top: none; padding-top: 0; }
+  a { color: var(--accent); }
+  code {
+    font: .9em/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: var(--card);
+    padding: .12em .35em;
+    border-radius: 3px;
+  }
+  .download {
+    display: block;
+    margin: 0 0 .6rem;
+    padding: 1.1rem 1.25rem;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: bold;
+  }
+  .download:hover, .download:focus { filter: brightness(1.12); }
+  .download small { display: block; font-weight: normal; font-size: .8rem; opacity: .85; margin-top: .2rem; }
+  .note {
+    background: var(--card);
+    border-left: 3px solid var(--accent);
+    padding: .85rem 1rem;
+    margin: 1.25rem 0;
+  }
+  .note p { margin: 0; }
+  ol, ul { padding-left: 1.35rem; }
+  li { margin-bottom: .5rem; }
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: .9rem;
+  }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Corpus Analysis Masterclass</h1>
+<p class="standfirst">Digital Humanities Winter School, 25–28 August 2026.<br>
+Mark Alfano and Brian Ballsun-Stanton.</p>
+
+<h2>Download the course materials</h2>
+
+<a class="download" href="https://github.com/DH-Oz/CorpusAnalysis/releases/latest/download/corpus-analysis.zip">
+  Download the course folder
+  <small>One zip, about 7&nbsp;MB. Notebooks, texts, and dictionaries.</small>
+</a>
+<p style="text-align:center;margin:0 0 1.5rem;font-size:.9rem;">
+  <a href="https://github.com/DH-Oz/CorpusAnalysis/releases/latest">Past versions and release notes</a>
+</p>
+
+<div class="note">
+<p><strong>Before the course starts</strong>, install Miniforge and check the course
+folder opens. A slow download on the first morning eats into the first session. Your
+instructors will have sent the install steps; if you have not seen them, email us
+below.</p>
+</div>
+
+<h2>Once you have the zip</h2>
+
+<ol>
+  <li>Unzip it somewhere you can find again, such as your Desktop.</li>
+  <li><strong>Windows:</strong> double-click <code>start-jupyter.bat</code> inside the folder.</li>
+  <li><strong>macOS and Linux:</strong> open a terminal, type <code>cd</code> and a space,
+      drag the unzipped folder onto the terminal window, press Return, then run
+      <code>sh start-jupyter.sh</code>.</li>
+  <li>The first run builds the course environment and takes a few minutes. Every run
+      afterwards takes seconds.</li>
+</ol>
+
+<p>Mac users: do not double-click the launcher. macOS refuses to run anything that
+arrived from the internet, and the warning it shows offers only Delete and Close.
+Starting it from the terminal walks around that entirely. The <code>README.md</code>
+inside the folder explains this step by step.</p>
+
+<h2>If your laptop will not let you install anything</h2>
+
+<p>You can still take the course. Everything runs in a web browser through
+<a href="https://colab.research.google.com">Google Colab</a>, and the
+<code>README.md</code> inside the zip has the steps. Tell us beforehand if you are on
+a managed machine, so we know how many people to expect.</p>
+
+<h2>Licences</h2>
+
+<p>Lesson content, including the dictionaries we wrote, is
+<a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. The code
+and build tooling are MIT. LIWC dictionaries are commercial and are not distributed
+here; if you hold a licence and want to use it with the German content-analysis
+lesson, get in touch.</p>
+
+<footer>
+<p>Mark Alfano — <a href="mailto:mark.alfano@gmail.com">mark.alfano@gmail.com</a><br>
+Brian Ballsun-Stanton — <a href="mailto:brian.ballsun-stanton@mq.edu.au">brian.ballsun-stanton@mq.edu.au</a></p>
+<p><a href="https://github.com/DH-Oz/CorpusAnalysis">Source repository</a> ·
+<a href="https://github.com/DH-Oz/2025-corpus-analysis">2025 archive (R/Rmd)</a></p>
+</footer>
+
+</main>
+</body>
+</html>

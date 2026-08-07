@@ -1,0 +1,61 @@
+name: pages
+
+# Publishes the landing page students download the course zip from.
+#
+# Only site/ is published. docs/ deliberately stays out: it holds the ADRs, the
+# per-slide translation map, the pre-course message and the pedagogy papers, none of
+# which are student-facing, and a Pages deploy is a public one.
+#
+# The repo's Pages source is set to "GitHub Actions" rather than a branch, so this
+# workflow is what makes the URL resolve. Without it the site 404s no matter what
+# sits in site/.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time. Queued rather than cancelled, so a run that is already
+# uploading finishes rather than leaving the site half-published.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy the landing page
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: The page exists and points at the stable download name
+        # The download link is the only thing on the page that has to be right. It
+        # resolves by asset name, so it breaks silently the moment release.yml stops
+        # attaching a copy called corpus-analysis.zip.
+        run: |
+          test -f site/index.html || { echo "site/index.html is missing"; exit 1; }
+          grep -q 'releases/latest/download/corpus-analysis.zip' site/index.html || {
+            echo "The landing page has lost its stable download link."
+            exit 1
+          }
+          echo "Landing page present, download link intact."
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
