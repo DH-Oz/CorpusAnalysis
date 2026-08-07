@@ -47,9 +47,17 @@ The bundle is about 6.5 MB and 30 files: the five notebooks with their outputs (
 `resources.zip`, `environment.yml`, `requirements.txt`, both launchers, and
 `README.md`.
 
-`start-jupyter.command` keeps its executable bit through the zip, which is what a
-macOS student double-clicks. Losing it would break the intended path in with no
-other symptom, so it has a test of its own.
+`start-jupyter.sh` keeps its executable bit through the zip, and it has a test of its
+own because losing the mode has no other symptom.
+
+*Amended 2026-08-07.* This originally read `start-jupyter.command`, and the bit
+mattered because that is what a macOS student double-clicked. Gatekeeper ended that
+route: a downloaded, unsigned `.command` is refused with only Delete and Close, and
+macOS Sequoia removed the Control-click bypass. macOS is now taught
+`sh start-jupyter.sh`, which never consults Gatekeeper, and the file was renamed
+because `.command` existed only to invite the double-click that now fails. The
+executable bit still travels, for Linux students running `./start-jupyter.sh`, so the
+test stands on a narrower reason than the one it was written for.
 
 `pyproject.toml` does not travel. Nothing student-facing references it; the README's
 terminal route and both launchers use `environment.yml`, which pip-installs
