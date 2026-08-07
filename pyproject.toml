@@ -47,3 +47,15 @@ dev = [
     "pre-commit>=4.0",
     "pytest>=8.0",
 ]
+
+[tool.uv]
+# Instructor-side only, like the group above. Students install with pip from
+# requirements.txt, which has no equivalent setting and carries none of this.
+#
+# An instructor machine may set a global `exclude-newer` quarantine, which hides
+# any package published inside that window from the resolver. sotu is our own,
+# released from github.com/DH-Oz/sotu by this course's two authors, so
+# quarantining it guards against nothing and only blocks the pin above whenever
+# we ship a version and adopt it in the same fortnight. Exempting it by name
+# keeps the quarantine intact for every third-party package.
+exclude-newer-package = { sotu = false }
